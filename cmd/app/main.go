@@ -5,6 +5,8 @@ import (
 )
 
 func main() {
-	server.Init()
-	server.Start()
+	webapp := server.Init()
+	webapp.BuildRoutes()
+
+	webapp.Start()
 }

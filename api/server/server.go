@@ -10,31 +10,33 @@ import (
 type Server struct {
 	App      *fiber.App
 	Sessions []model.Session
+	Handler  ServerHandler
 }
 
-var WebServer Server
+// Init() method inizializes server
+func Init() *Server {
 
-func Init() {
+	server := new(Server)
+	server.App = fiber.New()
+	server.Sessions = []model.Session{}
 
-	WebServer.App = fiber.New()
-	WebServer.Sessions = []model.Session{}
-
-	BuildRoutes()
-
+	return server
 }
 
-func BuildRoutes() {
-	WebServer.App.Static("/", "./public")
-	WebServer.App.Post("/newsession", LoginRoute)
-	WebServer.App.Get("/cabinet", MainPageRoute)
-	WebServer.App.Get("/cabinet/vehicles", VehiclesPageRoute)
-	WebServer.App.Get("/cabinet/fines", FinesPageRoute)
+// BuidRoutes() method setting routes for public requests.
+func (server *Server) BuildRoutes() {
+	server.App.Static("/public", "./public")
+	server.App.Get("/cabinet/vehicles", VehiclesPageRoute)
+	server.App.Get("/cabinet/fines", FinesPageRoute)
 
-	WebServer.App.Get("/getses", GetAllSessionsRoute)
+	server.App.Get("/", server.Handler.ClosureMain(server))
+	server.App.Post("/newsession", server.Handler.ClosureLogin(server))
+	server.App.Get("/exit", server.Handler.ClosureExit(server))
 
-	WebServer.App.Get("/exit", ExitRoute)
+	server.App.Get("/getses", server.Handler.ClosureGetSessions(server))
 }
 
-func Start() {
-	logger.LogFatal(WebServer.App.Listen(":3000"))
+// Start() method starts server.
+func (server *Server) Start() {
+	logger.LogFatal(server.App.Listen(":3000"))
 }
