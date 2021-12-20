@@ -23,10 +23,10 @@ func (server *Server) SetCookie(c *fiber.Ctx, name string, value interface{}) {
 // CheckAuth() checks if user is already logged in, and returns bool value as a result.
 func (server *Server) CheckAuth(c *fiber.Ctx) bool {
 	res := false
-	a := c.Cookies("authtoken")
-	r := c.Cookies("refreshtoken")
+	authtoken := c.Cookies("authtoken")
+	refreshtoken := c.Cookies("refreshtoken")
 
-	if a == "" && r == "" {
+	if authtoken == "" && refreshtoken == "" {
 		res = false
 	}
 
