@@ -49,7 +49,6 @@ func LoadConfig(path string) (config *Config, err error) {
 	viper.BindEnv("MainAppAdr")
 	os.Setenv("MAINAPPADR", "http://localhost:5050")
 	config.MainAppAdr = viper.GetString("MainAppAdr")
-
 	return
 
 }
