@@ -13,6 +13,7 @@ type Config struct {
 	DBSource      string `mapstructure:"DB_SOURCE"`
 	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
 	ServerPort    string `mapstructure:"SERVER_PORT"`
+	MainAppAdr    string
 	PgUser        string
 	PgDB          string
 	PgHost        string
@@ -20,8 +21,9 @@ type Config struct {
 }
 
 //LoadConfig reads configuration from .env  file
-func LoadConfig(path string) (config Config, err error) {
+func LoadConfig(path string) (config *Config, err error) {
 
+	config = new(Config)
 	//Setting default path for config file
 	if path == "" {
 		path = "./config"
@@ -41,17 +43,12 @@ func LoadConfig(path string) (config Config, err error) {
 	}
 
 	//Parsing config vals from file (second step)
-	err = viper.Unmarshal(&config)
-
-	//If it is nescessary to hardcore port - just add value for SERVER_PORT in .env file
-	if config.ServerPort == "" {
-		config.ServerPort = os.Getenv("SERVER_PORT")
-	}
+	err = viper.Unmarshal(config)
 
 	viper.AutomaticEnv()
-	viper.BindEnv("PgUser")
-	os.Setenv("PGUSER", "postgress")
-	config.PgUser = viper.GetString("PgUser")
+	viper.BindEnv("MainAppAdr")
+	os.Setenv("MAINAPPADR", "http://localhost:5050")
+	config.MainAppAdr = viper.GetString("MainAppAdr")
 
 	return
 

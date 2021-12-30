@@ -5,6 +5,7 @@ go 1.17
 require github.com/gofiber/fiber/v2 v2.23.0
 
 require (
+	github.com/ASeegull/edriver-space v0.0.0-20211221130401-6805600ee385 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

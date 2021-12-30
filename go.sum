@@ -1,3 +1,5 @@
+github.com/ASeegull/edriver-space v0.0.0-20211221130401-6805600ee385 h1:2fef8qO+u55Lklz2PPeWjtMZV3ReZognAsdV9fQfjTI=
+github.com/ASeegull/edriver-space v0.0.0-20211221130401-6805600ee385/go.mod h1:krfHrHpaZU0NjZ9X2b+3Q0IZ8QhkszSbeLadXtoTFnA=
 github.com/andybalholm/brotli v1.0.2 h1:JKnhI/XQ75uFBTiuzXpzFrUriDPiZjlOSzh6wXogP0E=
 github.com/andybalholm/brotli v1.0.2/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=
 github.com/andybalholm/brotli v1.0.4 h1:V7DdXeJtZscaqfNuAdSRuRFzuiKlHSC/Zh3zl9qY3JY=

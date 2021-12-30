@@ -15,3 +15,9 @@ func FinesPageRoute(c *fiber.Ctx) error {
 	c.SendString("Hello Lv-644")
 	return nil
 }
+
+// ShowTokens() - technical,temporary
+func ShowTokens(c *fiber.Ctx) error {
+	c.SendString(c.Cookies("accesstoken") + " // " + c.Cookies("refreshtoken"))
+	return nil
+}

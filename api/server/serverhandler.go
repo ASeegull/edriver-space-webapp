@@ -1,11 +1,13 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	"github.com/ASeegull/edriver-space-webapp/logger"
 	"github.com/ASeegull/edriver-space-webapp/model"
+	"github.com/ASeegull/edriver-space-webapp/pkg/auth"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -24,15 +26,28 @@ func (ServerHandler) ClosureGetSessions(server *Server) fiber.Handler {
 func (ServerHandler) ClosureLogin(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
-
+		signInData := new(model.SingInData)
 		tempSession := new(model.Session)
 
-		// Parsing login data from POST request (via html <form>) to new session info
-		err := c.BodyParser(tempSession)
+		// Parsing login data from POST request (via html <form>) to a variable
+		err := c.BodyParser(signInData)
 		if err != nil {
 			return c.Status(500).SendString(err.Error())
 		}
 
+		// Sending login request to main app
+		res := auth.LoginProceed(*signInData, srv.Config)
+		token := new(model.AuthData)
+		json.Unmarshal([]byte(res), token)
+
+		fmt.Println(res)
+
+		// Saving tokens to cookies
+		srv.SetCookie(c, "accesstoken", token.AccessToken)
+		srv.SetCookie(c, "refreshtoken", token.RefreshToken)
+
+		// Registring new session
+		tempSession.UserLogin = signInData.Email
 		srv.RegisterSession(tempSession, c)
 
 		return c.Redirect("./public/panel.html")
