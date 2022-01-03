@@ -20,4 +20,5 @@ RUN chmod +x /usr/lib/edriver-space/webapp
 
 ENTRYPOINT [ "/usr/lib/edriver-space/webapp" ]
 
-EXPOSE 5050
+EXPOSE 3000
+
