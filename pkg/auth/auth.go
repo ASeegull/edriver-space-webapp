@@ -21,7 +21,7 @@ func LoginProceed(data model.SingInData, config *config.Config) string {
 	}`)
 
 	// Sending request to main app
-	response, err := http.Post(config.MainAppAdr+"/sign-in", "application/json", requestbody)
+	response, err := http.Post(config.MainAppAdr+config.SignInURL, "application/json", requestbody)
 	if err != nil {
 		logger.LogErr(err)
 	}
@@ -47,7 +47,7 @@ func LogoutProceed(accesstoken string, config *config.Config) error {
 	}`)
 
 	// Sending request to main app
-	response, err := http.Post(config.MainAppAdr+"/sign-out", "application/json", requestbody)
+	response, err := http.Post(config.MainAppAdr+config.SignOutURL, "application/json", requestbody)
 	if err != nil {
 		logger.LogErr(err)
 	}
@@ -72,7 +72,7 @@ func LogoutProceed(accesstoken string, config *config.Config) error {
 // RefreshProceed() func delivers renew request (for refreshing tokens) to main app and returns an error if process failed.
 func RefreshProceed(refreshtoken string, config *config.Config) error {
 	// Sending request to main app
-	response, err := http.Get(config.MainAppAdr + "/refresh-tokens")
+	response, err := http.Get(config.MainAppAdr + config.RefreshTokenURL)
 	if err != nil {
 		logger.LogErr(err)
 	}

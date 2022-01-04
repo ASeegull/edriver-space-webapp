@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/viper"
@@ -9,15 +8,15 @@ import (
 
 //Config struct stores all configuration values for project using Viper
 type Config struct {
-	DBDriver      string `mapstructure:"DB_DRIVER"`
-	DBSource      string `mapstructure:"DB_SOURCE"`
-	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
-	ServerPort    string `mapstructure:"SERVER_PORT"`
-	MainAppAdr    string
-	PgUser        string
-	PgDB          string
-	PgHost        string
-	PgPort        string
+	SignInURL       string `mapstructure:"SIGN_IN_URL"`
+	SignUpURL       string `mapstructure:"SIGN_UP_URL"`
+	SignOutURL      string `mapstructure:"SIGN_OUT_URL"`
+	RefreshTokenURL string `mapstructure:"REFRESH_TOKEN_URL"`
+	MainAppAdr      string
+	PgUser          string
+	PgDB            string
+	PgHost          string
+	PgPort          string
 }
 
 //LoadConfig reads configuration from .env  file
@@ -49,27 +48,6 @@ func LoadConfig(path string) (config *Config, err error) {
 	viper.BindEnv("MainAppAdr")
 	os.Setenv("MAINAPPADR", "http://localhost:5050")
 	config.MainAppAdr = viper.GetString("MainAppAdr")
-	return
-
-}
-
-// GetConfigString returns specific value from config file
-func GetConfigString(ValName string) (val string, err error) {
-
-	//Loading config
-	config, _ := LoadConfig("./config")
-
-	switch ValName {
-	case "DBDriver":
-		val = config.DBDriver
-	case "DBSource":
-		val = config.DBSource
-	case "ServerAddress":
-		val = config.ServerAddress
-	default:
-		err = fmt.Errorf("Cannot find value " + ValName)
-	}
-
 	return
 
 }

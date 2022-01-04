@@ -5,6 +5,7 @@ import (
 	"github.com/ASeegull/edriver-space-webapp/logger"
 	"github.com/ASeegull/edriver-space-webapp/model"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html"
 )
 
 // Server struct holds all important server info
@@ -19,7 +20,10 @@ type Server struct {
 func Init(config *config.Config) *Server {
 
 	server := new(Server)
-	server.App = fiber.New()
+	engine := html.New("./public", ".html")
+	server.App = fiber.New(fiber.Config{
+		Views: engine,
+	})
 	server.Sessions = []model.Session{}
 	server.Config = config
 
@@ -35,6 +39,7 @@ func (server *Server) BuildRoutes() {
 
 	server.App.Get("/", server.Handler.ClosureMain(server))
 	server.App.Post("/newsession", server.Handler.ClosureLogin(server))
+	server.App.Get("/panel", server.Handler.ClosurePanel(server))
 	server.App.Get("/exit", server.Handler.ClosureExit(server))
 
 	server.App.Get("/getses", server.Handler.ClosureGetSessions(server))

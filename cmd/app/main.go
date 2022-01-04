@@ -21,7 +21,6 @@ func main() {
 	go webapp.Start()
 
 	app := fiber.New()
-
 	app.Post("/sign-in", func(c *fiber.Ctx) error {
 		c.SendString(`{
 			"accesstoken" : "67686ds8676f7fd68766df7"

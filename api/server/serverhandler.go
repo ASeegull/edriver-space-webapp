@@ -50,7 +50,7 @@ func (ServerHandler) ClosureLogin(server *Server) fiber.Handler {
 		tempSession.UserLogin = signInData.Email
 		srv.RegisterSession(tempSession, c)
 
-		return c.Redirect("./public/panel.html")
+		return c.Redirect("/panel")
 
 	}
 }
@@ -67,7 +67,7 @@ func (ServerHandler) ClosureExit(server *Server) fiber.Handler {
 
 		srv.EndSession(sesid)
 		c.ClearCookie()
-		return c.Redirect("/public")
+		return c.Redirect("/")
 	}
 }
 
@@ -77,10 +77,27 @@ func (ServerHandler) ClosureMain(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Redirecting to panel page if user is already logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
-			c.Redirect("./public/panel.html")
+			return c.Redirect("/panel")
 		} else {
-			c.Redirect("./public")
+			return c.Render("index", fiber.Map{
+				"Title": "E-driver Control",
+			})
 		}
-		return nil
+	}
+}
+
+// ClosureMain() returns a webapp route closure function that handles requests to base URL
+func (ServerHandler) ClosurePanel(server *Server) fiber.Handler {
+	srv := server
+	return func(c *fiber.Ctx) error {
+		// Allowing access to panel page if user is logged in. If not - redirecting to login form
+		if srv.CheckAuth(c) {
+			return c.Render("panel", fiber.Map{
+				"Title": "E-driver Control",
+			})
+		} else {
+			return c.Redirect("/")
+
+		}
 	}
 }

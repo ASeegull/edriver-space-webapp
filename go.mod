@@ -8,6 +8,7 @@ require (
 	github.com/ASeegull/edriver-space v0.0.0-20211221130401-6805600ee385 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/gofiber/template v1.6.20 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
