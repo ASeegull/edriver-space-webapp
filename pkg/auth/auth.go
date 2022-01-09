@@ -16,8 +16,8 @@ func LoginProceed(data model.SingInData, config *config.Config) string {
 	// Forming request body
 	requestbody := strings.NewReader(`
 	{
-		"Email" : "` + data.Email + `"
-		"Password" : "` + data.Password + `"
+		"Email" : "` + data.Email + `",
+		"Password" : "` + data.Password + `",
 	}`)
 
 	// Sending request to main app

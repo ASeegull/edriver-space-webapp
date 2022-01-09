@@ -37,20 +37,24 @@ func (ServerHandler) ClosureLogin(server *Server) fiber.Handler {
 
 		// Sending login request to main app
 		res := auth.LoginProceed(*signInData, srv.Config)
-		token := new(model.AuthData)
-		json.Unmarshal([]byte(res), token)
 
-		fmt.Println(res)
+		if res == "Wrong Password" || res == "User doesn't excist" {
+			srv.SetCookie(c, "LogInErr", res)
+			return c.Redirect("/")
+		} else {
+			token := new(model.AuthData)
+			json.Unmarshal([]byte(res), token)
 
-		// Saving tokens to cookies
-		srv.SetCookie(c, "accesstoken", token.AccessToken)
-		srv.SetCookie(c, "refreshtoken", token.RefreshToken)
+			// Saving tokens to cookies
+			srv.SetCookie(c, "accesstoken", token.AccessToken)
+			srv.SetCookie(c, "refreshtoken", token.RefreshToken)
 
-		// Registring new session
-		tempSession.UserLogin = signInData.Email
-		srv.RegisterSession(tempSession, c)
-
-		return c.Redirect("/panel")
+			// Registring new session
+			tempSession.UserLogin = signInData.Email
+			srv.RegisterSession(tempSession, c)
+			c.ClearCookie("LogInErr")
+			return c.Redirect("/panel")
+		}
 
 	}
 }
@@ -81,6 +85,7 @@ func (ServerHandler) ClosureMain(server *Server) fiber.Handler {
 		} else {
 			return c.Render("index", fiber.Map{
 				"Title": "E-driver Control",
+				"Error": c.Cookies("LogInErr"),
 			})
 		}
 	}
@@ -94,6 +99,7 @@ func (ServerHandler) ClosurePanel(server *Server) fiber.Handler {
 		if srv.CheckAuth(c) {
 			return c.Render("panel", fiber.Map{
 				"Title": "E-driver Control",
+				"Error": c.Cookies("PanelErr"),
 			})
 		} else {
 			return c.Redirect("/")

@@ -2,8 +2,8 @@ package model
 
 // SignInData fields may be not final
 type SingInData struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" form:"email"`
+	Password string `json:"password" form:"password"`
 }
 
 type AuthData struct {

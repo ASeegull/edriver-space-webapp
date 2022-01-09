@@ -9,7 +9,7 @@ import (
 
 // SetCookie() handles process of creating a cookie.
 // Appart from name and value of cookie, func accepts pointer to fiber context.
-func (server *Server) SetCookie(c *fiber.Ctx, name string, value interface{}) {
+func (*Server) SetCookie(c *fiber.Ctx, name string, value interface{}) {
 
 	cookie := new(fiber.Cookie)
 	cookie.Name = name
