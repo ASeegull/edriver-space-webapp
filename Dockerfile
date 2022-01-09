@@ -16,6 +16,9 @@ LABEL GROUP Lv-644.Golang
 RUN apk add --update --no-cache ca-certificates
 WORKDIR /usr/lib/edriverspace
 COPY --from=builder /src/webapp /usr/lib/edriver-space/webapp
+COPY --from=builder /src/config/config.env /usr/lib/edriverspace/config/config.env
+COPY --from=builder /src/public/ /usr/lib/edriverspace/public/
+
 RUN chmod +x /usr/lib/edriver-space/webapp
 
 ENTRYPOINT [ "/usr/lib/edriver-space/webapp" ]

@@ -37,8 +37,7 @@ func (server *Server) BuildRoutes() {
 	server.App.Get("/cabinet/fines", FinesPageRoute)
 	server.App.Get("/showtokens", ShowTokens)
 
-	server.App.Get("/entry", server.Handler.ClosureMain(server))
-	server.App.Get("/", VehiclesPageRoute)
+	server.App.Get("/", server.Handler.ClosureMain(server))
 	server.App.Post("/newsession", server.Handler.ClosureLogin(server))
 	server.App.Get("/panel", server.Handler.ClosurePanel(server))
 	server.App.Get("/exit", server.Handler.ClosureExit(server))

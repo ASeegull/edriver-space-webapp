@@ -41,7 +41,6 @@ func LoadConfig(path string) (config *Config, err error) {
 
 	if err != nil {
 		logger.LogErr(err)
-		// is there a sense to fail if you don't use anything config?
 	}
 
 	//Parsing config vals from file (second step)
