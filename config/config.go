@@ -4,6 +4,8 @@ import (
 	"os"
 
 	"github.com/spf13/viper"
+
+	"github.com/ASeegull/edriver-space-webapp/logger"
 )
 
 //Config struct stores all configuration values for project using Viper
@@ -38,7 +40,8 @@ func LoadConfig(path string) (config *Config, err error) {
 	err = viper.ReadInConfig()
 
 	if err != nil {
-		return
+		logger.LogErr(err)
+		// is there a sense to fail if you don't use anything config?
 	}
 
 	//Parsing config vals from file (second step)
