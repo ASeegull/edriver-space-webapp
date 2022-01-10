@@ -25,11 +25,10 @@ func LoginProceed(data model.SingInData, config *config.Config) string {
 	if err != nil {
 		logger.LogErr(err)
 	}
-
 	defer response.Body.Close()
 
+	// Saving the response
 	var content []byte
-
 	content, err = io.ReadAll(response.Body)
 	if err != nil {
 		logger.LogErr(err)

@@ -35,6 +35,7 @@ func (server *Server) BuildRoutes() {
 	server.App.Static("/public", "./public")
 	server.App.Get("/cabinet/vehicles", VehiclesPageRoute)
 	server.App.Get("/cabinet/fines", FinesPageRoute)
+	// Technical route, temporary
 	server.App.Get("/showtokens", ShowTokens)
 
 	server.App.Get("/", server.Handler.ClosureMain(server))

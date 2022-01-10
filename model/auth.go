@@ -6,6 +6,7 @@ type SingInData struct {
 	Password string `json:"password" form:"password"`
 }
 
+// AuthData fields may be not final
 type AuthData struct {
 	AccessToken  string `json:"accesstoken"`
 	RefreshToken string `json:"refreshtoken"`

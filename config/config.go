@@ -14,11 +14,11 @@ type Config struct {
 	SignUpURL       string `mapstructure:"SIGN_UP_URL"`
 	SignOutURL      string `mapstructure:"SIGN_OUT_URL"`
 	RefreshTokenURL string `mapstructure:"REFRESH_TOKEN_URL"`
+	UsrNotFoundMsg  string `mapstructure:"USER_DOESNT_EXCIST_MSG"`
+	WrongPassMsg    string `mapstructure:"WRONG_PASS_MSG"`
+	MainPageTitle   string `mapstructure:"MAIN_PAGE_TITLE"`
+	PanelPageTitle  string `mapstructure:"PANEL_PAGE_TITLE"`
 	MainAppAdr      string
-	PgUser          string
-	PgDB            string
-	PgHost          string
-	PgPort          string
 }
 
 //LoadConfig reads configuration from .env  file
@@ -48,7 +48,10 @@ func LoadConfig(path string) (config *Config, err error) {
 
 	viper.AutomaticEnv()
 	viper.BindEnv("MainAppAdr")
+
+	// Temporary setting MAINAPPADR manually for correct work with Login plug
 	os.Setenv("MAINAPPADR", "http://localhost:5050")
+
 	config.MainAppAdr = viper.GetString("MainAppAdr")
 	return
 
