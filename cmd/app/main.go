@@ -17,8 +17,8 @@ func LoginPlug() {
 		if logInData.Email == "skskuzan" {
 			if logInData.Password == "oqooq1" {
 				return c.SendString(`{
-					"accesstoken" : "67686ds8676f7fd68766df7",
-					"refreshtoken" : "67686ds8676f7fd68766df7"
+					"accesstoken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIxIiwiUm9sZSI6InVzZXIiLCJleHAi0jE2Mzk3NDQxNDcsInN1YiI6IjEifQ.LpvZ0d9zP2R0q04kldFQEgUcHyjGZZyjkUZBegm0D9A",
+					"refreshtoken" : "f8e9ecc6b5f0086220224ce285ea6fd22f77f62b20cf4335baa2b110a9bcce2f"
 				}`)
 			} else {
 

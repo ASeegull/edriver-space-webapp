@@ -11,7 +11,7 @@ import (
 // Server struct holds all important server info
 type Server struct {
 	App      *fiber.App
-	Sessions []model.Session
+	Sessions map[string]model.Session
 	Config   *config.Config
 	Handler  ServerHandler
 }
@@ -24,7 +24,7 @@ func Init(config *config.Config) *Server {
 	server.App = fiber.New(fiber.Config{
 		Views: engine,
 	})
-	server.Sessions = []model.Session{}
+	server.Sessions = make(map[string]model.Session)
 	server.Config = config
 
 	return server

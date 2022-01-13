@@ -2,8 +2,9 @@ package model
 
 // Session fields may be not final
 type Session struct {
-	ID        int    `json:"id"`
-	UserIP    string `json:"userip"`
-	UserLogin string `json:"userlogin"`
-	Active    bool   `json:"sessionactive"`
+	UserIP       string `json:"userip"`
+	UserLogin    string `json:"userlogin"`
+	AccessToken  string `json:"accesstoken"`
+	RefreshToken string `json:"refreshtoken"`
+	Active       bool   `json:"sessionactive"`
 }
