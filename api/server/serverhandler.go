@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/ASeegull/edriver-space-webapp/model"
 	"github.com/ASeegull/edriver-space-webapp/pkg/auth"
@@ -126,6 +127,23 @@ func (ServerHandler) ClosurePanel(server *Server) fiber.Handler {
 			return c.Render("panel", fiber.Map{
 				"Title": srv.Config.PanelPageTitle,
 				"Error": c.Cookies("PanelErr"),
+			})
+		} else {
+			return c.Redirect("/")
+
+		}
+	}
+}
+
+func (ServerHandler) ClosureAddInfo(server *Server) fiber.Handler {
+	srv := server
+	return func(c *fiber.Ctx) error {
+		// Allowing access to panel page if user is logged in. If not - redirecting to login form
+		if srv.CheckAuth(c) {
+			currentTime := time.Now()
+			return c.Render("add-info", fiber.Map{
+				"Title": srv.Config.PanelPageTitle,
+				"Date":  currentTime.Format("2006-01-02"),
 			})
 		} else {
 			return c.Redirect("/")
