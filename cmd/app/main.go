@@ -8,19 +8,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func main() {
-	logger.LogInit()
-
-	config, err := config.LoadConfig("./config")
-	if err != nil {
-		logger.LogErr(err)
-	}
-
-	webapp := server.Init(config)
-	webapp.BuildRoutes()
-
-	go webapp.Start()
-
+// Temporary plug for handling API-requests.
+func LoginPlug() {
 	app := fiber.New()
 	app.Post("/sign-in", func(c *fiber.Ctx) error {
 		logInData := new(model.SingInData)
@@ -39,6 +28,25 @@ func main() {
 			return c.SendString("User doesn't excist")
 		}
 	})
-
 	app.Listen(":5050")
+}
+
+func main() {
+	// Initializing logger
+	logger.LogInit()
+
+	// Loading config vals
+	config, err := config.LoadConfig("./config")
+	if err != nil {
+		logger.LogErr(err)
+	}
+
+	// Initializing server and passing config to it
+	webapp := server.Init(config)
+	webapp.BuildRoutes()
+
+	// Starting server
+	go webapp.Start()
+
+	LoginPlug()
 }

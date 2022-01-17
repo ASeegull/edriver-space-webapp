@@ -38,7 +38,7 @@ func (ServerHandler) ClosureLogin(server *Server) fiber.Handler {
 		// Sending login request to main app
 		res := auth.LoginProceed(*signInData, srv.Config)
 
-		if res == "Wrong Password" || res == "User doesn't excist" {
+		if res == srv.Config.WrongPassMsg || res == srv.Config.UsrNotFoundMsg {
 			srv.SetCookie(c, "LogInErr", res)
 			return c.Redirect("/")
 		} else {
@@ -69,6 +69,7 @@ func (ServerHandler) ClosureExit(server *Server) fiber.Handler {
 			logger.LogErr(err)
 		}
 
+		// Marking session as ended
 		srv.EndSession(sesid)
 		c.ClearCookie()
 		return c.Redirect("/")
@@ -84,7 +85,7 @@ func (ServerHandler) ClosureMain(server *Server) fiber.Handler {
 			return c.Redirect("/panel")
 		} else {
 			return c.Render("index", fiber.Map{
-				"Title": "E-driver Control",
+				"Title": srv.Config.MainPageTitle,
 				"Error": c.Cookies("LogInErr"),
 			})
 		}
@@ -98,7 +99,7 @@ func (ServerHandler) ClosurePanel(server *Server) fiber.Handler {
 		// Allowing access to panel page if user is logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
 			return c.Render("panel", fiber.Map{
-				"Title": "E-driver Control",
+				"Title": srv.Config.PanelPageTitle,
 				"Error": c.Cookies("PanelErr"),
 			})
 		} else {
