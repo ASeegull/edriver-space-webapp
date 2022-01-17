@@ -20,7 +20,7 @@ func (ServerHandler) ClosureGetSessions(server *Server) fiber.Handler {
 	}
 }
 
-// ClosureRoute() returns a webapp route closure function that proceeds user authorization data and starts login session
+// ClosureLogin() returns a webapp route closure function that proceeds user authorization data and starts login session
 func (ServerHandler) ClosureLogin(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -49,6 +49,41 @@ func (ServerHandler) ClosureLogin(server *Server) fiber.Handler {
 			c.ClearCookie("LogInErr")
 			return c.Redirect("/panel")
 		}
+
+	}
+}
+
+// ClosureSignUp() returns a webapp route closure function that proceeds user authorization data and starts login session
+func (ServerHandler) ClosureSignUp(server *Server) fiber.Handler {
+	srv := server
+	return func(c *fiber.Ctx) error {
+		// Redirecting to panel page if user is already logged in. If not - redirecting to login form
+		if srv.CheckAuth(c) {
+			return c.Redirect("/panel")
+		} else {
+			signUpErr := c.Cookies("SignUpErr")
+			c.ClearCookie("SignUpErr")
+			return c.Render("sign-up", fiber.Map{
+				"Title": srv.Config.MainPageTitle,
+				"Error": signUpErr,
+			})
+		}
+	}
+}
+
+// ClosureNewUser() returns a webapp route closure function that proceeds user authorization data and starts login session
+func (ServerHandler) ClosureNewUser(server *Server) fiber.Handler {
+	//srv := server
+	return func(c *fiber.Ctx) error {
+		signInData := new(model.SingInData)
+
+		// Parsing login data from POST request (via html <form>) to a variable
+		err := c.BodyParser(signInData)
+		if err != nil {
+			return c.Status(500).SendString(err.Error())
+		}
+		fmt.Printf("New User: %s, Pass: %s", signInData.Email, signInData.Password)
+		return c.Redirect("/")
 
 	}
 }

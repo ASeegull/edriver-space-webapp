@@ -40,6 +40,8 @@ func (server *Server) BuildRoutes() {
 
 	server.App.Get("/", server.Handler.ClosureMain(server))
 	server.App.Post("/newsession", server.Handler.ClosureLogin(server))
+	server.App.Get("/sign-up", server.Handler.ClosureSignUp(server))
+	server.App.Post("/newuser", server.Handler.ClosureNewUser(server))
 	server.App.Get("/panel", server.Handler.ClosurePanel(server))
 	server.App.Get("/exit", server.Handler.ClosureExit(server))
 
