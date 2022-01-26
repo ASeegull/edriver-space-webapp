@@ -10,15 +10,19 @@ import (
 
 //Config struct stores all configuration values for project using Viper
 type Config struct {
-	SignInURL       string `mapstructure:"SIGN_IN_URL"`
-	SignUpURL       string `mapstructure:"SIGN_UP_URL"`
-	SignOutURL      string `mapstructure:"SIGN_OUT_URL"`
-	RefreshTokenURL string `mapstructure:"REFRESH_TOKEN_URL"`
-	UsrNotFoundMsg  string `mapstructure:"USER_DOESNT_EXCIST_MSG"`
-	WrongPassMsg    string `mapstructure:"WRONG_PASS_MSG"`
-	MainPageTitle   string `mapstructure:"MAIN_PAGE_TITLE"`
-	PanelPageTitle  string `mapstructure:"PANEL_PAGE_TITLE"`
-	MainAppAdr      string
+	BaseUrl                  string `mapstructure:"BASE_URL"`
+	UsersSignInUrl           string `mapstructure:"USERS_SIGN_IN_URL"`
+	UsersSignUpUrl           string `mapstructure:"USERS_SIGN_UP_URL"`
+	UsersSignOutUrl          string `mapstructure:"USERS_SIGN_OUT_URL"`
+	UsersRefreshTokensUrl    string `mapstructure:"USERS_REFRESH_TOKENS_URL"`
+	UsersAddDriverLicenceUrl string `mapstructure:"USERS_ADD_DRIVER_LICENCE_URL"`
+	UsersGetFinesUrl         string `mapstructure:"USERS_GET_FINES_URL"`
+	CookieName               string `mapstructure:"COOKIE_NAME"`
+	UsrNotFoundMsg           string `mapstructure:"USER_DOESNT_EXCIST_MSG"`
+	WrongPassMsg             string `mapstructure:"WRONG_PASS_MSG"`
+	MainPageTitle            string `mapstructure:"MAIN_PAGE_TITLE"`
+	PanelPageTitle           string `mapstructure:"PANEL_PAGE_TITLE"`
+	MainAppAdr               string
 }
 
 //LoadConfig reads configuration from .env  file
