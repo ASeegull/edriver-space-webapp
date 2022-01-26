@@ -3,3 +3,6 @@ lint:
 
 test:
 	go test -v ./...
+
+test-coverage:
+	go test -coverprofile cover.out ./...
