@@ -151,3 +151,63 @@ func (ServerHandler) ClosureAddInfo(server *Server) fiber.Handler {
 		}
 	}
 }
+
+func (ServerHandler) ClosureVehicles(server *Server) fiber.Handler {
+	srv := server
+	return func(c *fiber.Ctx) error {
+		// Allowing access to vehicles page if user is logged in. If not - redirecting to login form
+		if srv.CheckAuth(c) {
+			return c.Render("vehicles", fiber.Map{
+				"Title": srv.Config.PanelPageTitle,
+				"Cars": []model.Car{
+					{
+						VIN:              "VF3HURHCHFUUDJK206785",
+						RegistrationNum:  "AA6666AA",
+						VehicleCategory:  "",
+						Make:             "Mazda",
+						Type:             "2",
+						Year:             "2013",
+						RegistrationDate: "20/01/2022",
+					},
+					{
+						VIN:              "IHFHIHOIDHOIFIOD456454",
+						RegistrationNum:  "",
+						VehicleCategory:  "",
+						Make:             "Mazda",
+						Type:             "CX-5",
+						Year:             "2019",
+						RegistrationDate: "21/02/2022",
+					},
+					{
+						VIN:              "",
+						RegistrationNum:  "",
+						VehicleCategory:  "",
+						Make:             "",
+						Type:             "",
+						Year:             "",
+						RegistrationDate: "",
+					},
+				},
+			})
+		} else {
+			return c.Redirect("/")
+
+		}
+	}
+}
+
+func (ServerHandler) ClosureFineList(server *Server) fiber.Handler {
+	srv := server
+	return func(c *fiber.Ctx) error {
+		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
+		if srv.CheckAuth(c) {
+			return c.Render("fine-list", fiber.Map{
+				"Title": srv.Config.PanelPageTitle,
+				"VIN":   c.Query("VIN"),
+			})
+		} else {
+			return c.Redirect("/")
+
+		}
+	}
+}
