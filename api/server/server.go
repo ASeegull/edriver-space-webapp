@@ -11,7 +11,7 @@ import (
 // Server struct holds all important server info
 type Server struct {
 	App      *fiber.App
-	Sessions []model.Session
+	Sessions map[string]model.Session
 	Config   *config.Config
 	Handler  ServerHandler
 }
@@ -24,7 +24,7 @@ func Init(config *config.Config) *Server {
 	server.App = fiber.New(fiber.Config{
 		Views: engine,
 	})
-	server.Sessions = []model.Session{}
+	server.Sessions = make(map[string]model.Session)
 	server.Config = config
 
 	return server
@@ -40,6 +40,8 @@ func (server *Server) BuildRoutes() {
 
 	server.App.Get("/", server.Handler.ClosureMain(server))
 	server.App.Post("/newsession", server.Handler.ClosureLogin(server))
+	server.App.Get("/sign-up", server.Handler.ClosureSignUp(server))
+	server.App.Post("/newuser", server.Handler.ClosureNewUser(server))
 	server.App.Get("/panel", server.Handler.ClosurePanel(server))
 	server.App.Get("/exit", server.Handler.ClosureExit(server))
 
