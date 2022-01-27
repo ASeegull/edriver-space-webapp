@@ -5,11 +5,8 @@ import (
 	"github.com/ASeegull/edriver-space-webapp/config"
 	"github.com/ASeegull/edriver-space-webapp/model"
 	"github.com/ASeegull/edriver-space-webapp/pkg/api_client"
-	"net/http"
-	"strconv"
-
-	"github.com/ASeegull/edriver-space-webapp/logger"
 	"github.com/gofiber/fiber/v2"
+	"net/http"
 )
 
 type Handler struct {
@@ -146,18 +143,29 @@ func (h *Handler) ClosureGetFines(server *Server) fiber.Handler {
 	}
 }
 
-// ClosureExit returns a webapp route closure function that handles exit from session proccess
+// ClosureNewUser() returns a webapp route closure function that proceeds user authorization data and starts login session
+func (h *Handler) ClosureNewUser(server *Server) fiber.Handler {
+	//srv := server
+	return func(c *fiber.Ctx) error {
+		signInData := new(model.SignInInput)
+
+		// Parsing login data from POST request (via html <form>) to a variable
+		err := c.BodyParser(signInData)
+		if err != nil {
+			return c.Status(500).SendString(err.Error())
+		}
+		fmt.Printf("New User: %s, Pass: %s", signInData.Email, signInData.Password)
+		return c.Redirect("/")
+
+	}
+}
+
+// ClosureExit() returns a webapp route closure function that handles exit from session proccess
 func (h *Handler) ClosureExit(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
-		// Getting id for current session from cookies
-		sesid, err := strconv.Atoi(c.Cookies("sesid"))
-		if err != nil {
-			logger.LogErr(err)
-		}
-
-		// Marking session as ended
-		srv.EndSession(sesid)
+		// Marking session as ended and clearing cookies
+		srv.EndSession(c.Cookies("sesid"))
 		c.ClearCookie()
 		return c.Redirect("/")
 	}
@@ -171,9 +179,11 @@ func (h *Handler) ClosureMain(server *Server) fiber.Handler {
 		if srv.CheckAuth(c) {
 			return c.Redirect("/panel")
 		} else {
+			logErr := c.Cookies("LogInErr")
+			c.ClearCookie("LogInErr")
 			return c.Render("index", fiber.Map{
 				"Title": srv.Config.MainPageTitle,
-				"Error": c.Cookies("LogInErr"),
+				"Error": logErr,
 			})
 		}
 	}
