@@ -209,6 +209,41 @@ func (ServerHandler) ClosureFineSingle(server *Server) fiber.Handler {
 	}
 }
 
+func (ServerHandler) ClosureVehicleFineList(server *Server) fiber.Handler {
+	srv := server
+	return func(c *fiber.Ctx) error {
+		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
+		if srv.CheckAuth(c) {
+			fines := []*model.Fine{
+				{
+					VIN:         "VF3HURHCHFUUDJK206785",
+					NumberPlate: "AA6666AA",
+					Date:        "20-01-2022",
+					Place:       "Uhorska 22, Lviv",
+					Violation:   "Speeding",
+					Ammount:     "250",
+				},
+				{
+					VIN:         "VF3HURHCHFUUDJK206785",
+					NumberPlate: "BC3066KP",
+					Date:        "22-01-2022",
+					Place:       "Lypnytska 2, Lviv",
+					Violation:   "Speeding",
+					Ammount:     "500",
+				},
+			}
+			return c.Render("fine-list", fiber.Map{
+				"Title":    srv.Config.PanelPageTitle,
+				"ListName": c.Query("VIN"),
+				"Fines":    fines,
+			})
+		} else {
+			return c.Redirect("/")
+
+		}
+	}
+}
+
 func (ServerHandler) ClosureFineList(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -224,7 +259,7 @@ func (ServerHandler) ClosureFineList(server *Server) fiber.Handler {
 					Ammount:     "250",
 				},
 				{
-					VIN:         "HKFKJDGSHLJFSKJ78767",
+					VIN:         "VF3HURHCHFUUDJK206785",
 					NumberPlate: "BC3066KP",
 					Date:        "22-01-2022",
 					Place:       "Lypnytska 2, Lviv",
@@ -232,9 +267,11 @@ func (ServerHandler) ClosureFineList(server *Server) fiber.Handler {
 					Ammount:     "500",
 				},
 			}
+			id := c.Cookies("sesid")
 			return c.Render("fine-list", fiber.Map{
-				"Title": srv.Config.PanelPageTitle,
-				"Fines": fines,
+				"Title":    srv.Config.PanelPageTitle,
+				"ListName": server.Sessions[id].UserLogin,
+				"Fines":    fines,
 			})
 		} else {
 			return c.Redirect("/")
