@@ -47,6 +47,7 @@ func (server *Server) BuildRoutes() {
 	server.App.Get("/add-info", server.Handler.ClosureAddInfo(server))
 	server.App.Get("/vehicles", server.Handler.ClosureVehicles(server))
 	server.App.Get("/fine-list", server.Handler.ClosureFineList(server))
+	server.App.Get("/fine", server.Handler.ClosureFineSingle(server))
 	server.App.Get("/exit", server.Handler.ClosureExit(server))
 
 	server.App.Get("/getses", server.Handler.ClosureGetSessions(server))

@@ -1,0 +1,73 @@
+<head>
+<title>{{.Title}}</title>
+ <link rel="stylesheet" href="/public//assets/styles/css/app.css">
+    <link rel="stylesheet" class="color-switcher" href="/public//styles/css/app.css"> 
+    <meta charset="UTF-8"> 
+    <!-- Modernizr -->
+   <script src="/public//js/modernizr.min.js"></script> 
+</head>
+<body style="background-color:#f7f7f7;"> 
+<div style="padding-left:15px; padding-top:7px; min-height: calc(100vh - 80px); background-color:#f5f5f5">
+<a href="/fine-list?VIN={{.VIN}}"><h4>Back to fine list</h4></a>
+
+<table>
+<form enctype="multipart/form-data" action="" method="post">
+	<h1 style=" display: block;
+    font-family: 'Trebuchet MS', sans-serif;">Fine info for "{{.FineDate}} - {{.VIN}}":</h1>
+    <tr>
+        <td>Ticketed car:</td>
+        <td><b>{{.NumberPlate}}</b></td>
+		
+    </tr>
+    <tr>
+        <td>VIN:</td>
+        <td><b>{{.VIN}}</b></td>
+		
+    </tr>
+    <tr>
+        <td>Issue date:</td>
+        <td><b>{{.IssueDate}}</b></td>
+		
+    </tr>
+    <tr>
+        <td>Violation:</td>
+        <td><b>{{.Violation}}</b></td>
+		
+    </tr>
+    <tr>
+        <td>Fine Size:</td>
+        <td><b>{{.Ammount}} UAH</b></td>
+		
+    </tr>
+    <tr>
+        <td colspan="2"><input style ="border: none;
+    color: white;
+    padding: 0.5em 1em;
+	margin-top:9px;
+    display: inline-block;
+    background: #33414e;" type="submit" value="Pay this fine"></td>
+    </tr>
+</form>
+</table>
+<script src="/public/assets/js/jquery.min.js"></script>
+
+<!-- LivIcons -->
+<script src="/public/assets/js/raphael.min.js"></script>
+<script src="/public/assets/js/livicons-custom.min.js"></script>
+
+<!--Plugins -->
+<script src="/public/assets/js/owl-carousel.min.js"></script>
+<script src="/public/assets/js/magnific-popup.min.js"></script>  
+
+    <!-- General -->
+
+    <script src="/public/assets/js/app.js"></script>
+    <script src="/public/assets/js/homepage.js"></script>
+</div> 
+</body>
+<footer>
+<img style="
+    width: 100%;
+    height: 80px;
+" src="./public/1.png">
+</footer>

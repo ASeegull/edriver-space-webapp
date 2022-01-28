@@ -14,13 +14,9 @@
 
   <div style ="padding-left:15px;">
 <h3 style=" display: block;
-    font-family: 'Trebuchet MS', sans-serif;">My vehicles list:</h1>
+    font-family: 'Trebuchet MS', sans-serif;">My vehicles list:
+    </h3>
 
-<a href="/add-vehicle"><button style ="border: none;
-    color: white;
-    padding: 0.5em 1em;
-    display: inline-block;
-    background: #33414e;">New Vehicle</button></a> 
 	<a href="/panel"><button style ="border: none;
     color: white;
     padding: 0.5em 1em;
@@ -45,48 +41,20 @@
     <td><b>Delete</b></td>
     
 </tr>
+
+{{range .Cars}}
 <tr  style="
     color: #006400;
     font-weight: 700;
 " >
-
-<td><b>BC3065HB</b></td>
-<td>Mazda 3</td>
-<td>2015</td>
-<td>18 Jan 2022</td>
-<td>3</td>
-<td><a href="./fine-list?VIN=VF3HURHCJK206785">Check fines</a></td><td><a href="./delete-vehicle?id=1'">Delete</a></td></tr>
-{{range .Todos}}
-
 <td><b>{{.RegistrationNum}}</b></td>
 <td>{{.Make}} {{.Type}}</td>
 <td>{{.Year}}</td>
 <td>{{.RegistrationDate}}</td>
 <td>3</td>
-<td><a href="./fine-list?VIN={{.VIN}}">Check fines</a></td><td><a href="./delete-vehicle?id=1'">Delete</a></td></tr>
+<td><a href="./fine-list?VIN={{.VIN}}">Check fines</a></td><td><a href="./">Delete</a></td>
+</tr>
 {{end}}
-<tr  style="
-    color: #006400;
-    font-weight: 700;
-" >
-<td><b>AT0678HP</b></td>
-<td>Volkswagen Jetta</td>
-<td>2013</td>
-<td>17 Jan 2022</td>
-<td>0</td>
-<td><a href="./fine-list?VIN=HAUROYJJ102340">Check fines</a></td><td><a href="./delete-vehicle?id=2'">Delete</a></td></tr>
-
-<tr  style="
-    color: #006400;
-    font-weight: 700;
-" >
-<td><b>AA5050BB</b></td>
-<td>Citroen Grand Picasso</td>
-<td>2013</td>
-<td>18 Jan 2022</td>
-<td>8</td>
-<td><a href="./fine-list?VIN=FJOIHSOJFS37289">Check fines</a></td><td><a href="./delete-vehicle?id=3'">Delete</a></td></tr>
-
 
 </table> </div>
 <script src="/public/assets/js/jquery.min.js"></script>

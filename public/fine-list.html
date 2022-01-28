@@ -33,51 +33,30 @@
     color: white;
     padding: 0.5em 1em;
     display: inline-block;
-    background: #33414e;">Back to main</button></a> 
+    background: #33414e;">Back to list</button></a> 
 	</div>
 <br> <br>
 <div style="padding-left:15px; padding-right:15px;width: 50%;">
+    {{range .Fines}}
     <div style="border:2px solid red" class="e-drive_menu_div">
         <h3 style="
         display: contents;
         color: red;
-    ">{{.VIN}}</h3> <br>
+    "><a href="/fine?NumberPlate={{.NumberPlate}}&VIN={{.VIN}}&IssueDate={{.Date}}&Violation={{.Violation}}&Ammount={{.Ammount}}">
+        {{.VIN}}
+    </a></h3> <br>
         <p style="
         padding-left: 4%;
         color: red;
     ">
-    Place: Stusa str. 56, (50 speed camera) <br>
-    Date: 22/01/2022 <br>
-    Violation: Speeding<br>
-    Ammount: <b>250 UAH</b><br>
+    NumberPlate: {{.NumberPlate}} <br>
+    Place: {{.Place}} <br>
+    Date: {{.Date}} <br>
+    Violation: {{.Violation}}<br>
+    Ammount: <b>{{.Ammount}} UAH</b><br>
         </p>
     </div>
-    <div class="e-drive_menu_div">
-        <h3 style="
-        display: contents;
-    ">{{.VIN}}</h3> <br>
-        <p style="
-        padding-left: 4%;
-    ">
-    Place: Uhorska str. 22, (70 speed camera) <br>
-    Date: 20/12/2021 <br>
-    Violation: Speeding<br>
-    Ammount: <b>500 UAH</b><br>
-        </p>
-    </div>
-    <div class="e-drive_menu_div">
-        <h3 style="
-        display: contents;
-    ">{{.VIN}}</h3> <br>
-        <p style="
-        padding-left: 4%;
-    ">
-    Place: Stusa str. 56, (50 speed camera) <br>
-    Date: 18/11/2021 <br>
-    Violation: Speeding<br>
-    Ammount: <b>250 UAH</b><br>
-        </p>
-    </div>
+    {{end}}
 </div>
 <script src="/public/assets/js/jquery.min.js"></script>
 

@@ -14,11 +14,17 @@ type Config struct {
 	SignUpURL       string `mapstructure:"SIGN_UP_URL"`
 	SignOutURL      string `mapstructure:"SIGN_OUT_URL"`
 	RefreshTokenURL string `mapstructure:"REFRESH_TOKEN_URL"`
-	UsrNotFoundMsg  string `mapstructure:"USER_DOESNT_EXCIST_MSG"`
-	WrongPassMsg    string `mapstructure:"WRONG_PASS_MSG"`
-	MainPageTitle   string `mapstructure:"MAIN_PAGE_TITLE"`
-	PanelPageTitle  string `mapstructure:"PANEL_PAGE_TITLE"`
-	MainAppAdr      string
+
+	GetDriverFinesURL string `mapstructure:"GET_DRIVER_FINES_URL"`
+	GetCarFinesURL    string `mapstructure:"GET_CAR_FINES_URL"`
+	UpdateUserURL     string `mapstructure:"UPDATE_USER_URL"`
+
+	UsrNotFoundMsg string `mapstructure:"USER_DOESNT_EXCIST_MSG"`
+	WrongPassMsg   string `mapstructure:"WRONG_PASS_MSG"`
+	MainPageTitle  string `mapstructure:"MAIN_PAGE_TITLE"`
+	PanelPageTitle string `mapstructure:"PANEL_PAGE_TITLE"`
+
+	MainAppAdr string
 }
 
 //LoadConfig reads configuration from .env  file

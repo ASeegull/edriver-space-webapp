@@ -157,37 +157,50 @@ func (ServerHandler) ClosureVehicles(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Allowing access to vehicles page if user is logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
+			cars := []*model.Car{
+				{
+					VIN:              "VF3HURHCHFUUDJK206785",
+					RegistrationNum:  "AA6666AA",
+					VehicleCategory:  "",
+					Make:             "Mazda",
+					Type:             "2",
+					Year:             "2013",
+					RegistrationDate: "20/01/2022",
+				},
+				{
+					VIN:              "IHFHIHOIDHOIFIOD456454",
+					RegistrationNum:  "",
+					VehicleCategory:  "",
+					Make:             "Mazda",
+					Type:             "CX-5",
+					Year:             "2019",
+					RegistrationDate: "21/02/2022",
+				},
+			}
 			return c.Render("vehicles", fiber.Map{
 				"Title": srv.Config.PanelPageTitle,
-				"Cars": []model.Car{
-					{
-						VIN:              "VF3HURHCHFUUDJK206785",
-						RegistrationNum:  "AA6666AA",
-						VehicleCategory:  "",
-						Make:             "Mazda",
-						Type:             "2",
-						Year:             "2013",
-						RegistrationDate: "20/01/2022",
-					},
-					{
-						VIN:              "IHFHIHOIDHOIFIOD456454",
-						RegistrationNum:  "",
-						VehicleCategory:  "",
-						Make:             "Mazda",
-						Type:             "CX-5",
-						Year:             "2019",
-						RegistrationDate: "21/02/2022",
-					},
-					{
-						VIN:              "",
-						RegistrationNum:  "",
-						VehicleCategory:  "",
-						Make:             "",
-						Type:             "",
-						Year:             "",
-						RegistrationDate: "",
-					},
-				},
+				"Cars":  cars,
+			})
+		} else {
+			return c.Redirect("/")
+
+		}
+	}
+}
+
+func (ServerHandler) ClosureFineSingle(server *Server) fiber.Handler {
+	srv := server
+	return func(c *fiber.Ctx) error {
+		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
+		if srv.CheckAuth(c) {
+			return c.Render("single-fine", fiber.Map{
+				"Title":       srv.Config.PanelPageTitle,
+				"VIN":         c.Query("VIN"),
+				"NumberPlate": c.Query("NumberPlate"),
+				"IssueDate":   c.Query("IssueDate"),
+				"Place":       c.Query("Place"),
+				"Violation":   c.Query("Violation"),
+				"Ammount":     c.Query("Ammount"),
 			})
 		} else {
 			return c.Redirect("/")
@@ -201,9 +214,27 @@ func (ServerHandler) ClosureFineList(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
+			fines := []*model.Fine{
+				{
+					VIN:         "VF3HURHCHFUUDJK206785",
+					NumberPlate: "AA6666AA",
+					Date:        "20-01-2022",
+					Place:       "Uhorska 22, Lviv",
+					Violation:   "Speeding",
+					Ammount:     "250",
+				},
+				{
+					VIN:         "HKFKJDGSHLJFSKJ78767",
+					NumberPlate: "BC3066KP",
+					Date:        "22-01-2022",
+					Place:       "Lypnytska 2, Lviv",
+					Violation:   "Speeding",
+					Ammount:     "500",
+				},
+			}
 			return c.Render("fine-list", fiber.Map{
 				"Title": srv.Config.PanelPageTitle,
-				"VIN":   c.Query("VIN"),
+				"Fines": fines,
 			})
 		} else {
 			return c.Redirect("/")
