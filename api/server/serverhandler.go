@@ -1,82 +1,155 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
+	"github.com/ASeegull/edriver-space-webapp/config"
 	"github.com/ASeegull/edriver-space-webapp/model"
-	"github.com/ASeegull/edriver-space-webapp/pkg/auth"
+	"github.com/ASeegull/edriver-space-webapp/pkg/api_client"
 	"github.com/gofiber/fiber/v2"
+	"net/http"
 )
 
-type ServerHandler struct {
+type Handler struct {
+	client *api_client.ApiClient
 }
 
-// ClosureGetSessions() returns a webapp route closure function that proceeds technical requests for seeing all sessions
-func (ServerHandler) ClosureGetSessions(server *Server) fiber.Handler {
+func NewHandler(cfg *config.Config) *Handler {
+	return &Handler{client: api_client.NewApiClient(cfg)}
+}
+
+// ClosureGetSessions returns a webapp route closure function that proceeds technical requests for seeing all sessions
+func (h *Handler) ClosureGetSessions(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		return c.SendString(fmt.Sprint(&srv.Sessions))
 	}
 }
 
-// ClosureLogin() returns a webapp route closure function that proceeds user authorization data and starts login session
-func (ServerHandler) ClosureLogin(server *Server) fiber.Handler {
-	srv := server
-	return func(c *fiber.Ctx) error {
-		signInData := new(model.SingInData)
-		tempSession := new(model.Session)
+// ClosureSignIn returns a webapp route closure function that proceeds user authorization data and starts login session
+func (h *Handler) ClosureSignIn(server *Server) fiber.Handler {
+	//srv := server
+	return func(ctx *fiber.Ctx) error {
+		input := model.SignInInput{}
 
-		// Parsing login data from POST request (via html <form>) to a variable
-		err := c.BodyParser(signInData)
+		if err := ctx.BodyParser(&input); err != nil {
+			return ctx.Status(http.StatusBadRequest).JSON(err.Error())
+		}
+
+		apiResp, err := h.client.Users.SignIn(input)
 		if err != nil {
-			return c.Status(500).SendString(err.Error())
+			return ctx.SendString(err.Error())
 		}
 
-		// Sending login request to main app
-		res := auth.LoginProceed(*signInData, srv.Config)
+		h.setCookie(ctx, apiResp.Cookies)
 
-		if res == srv.Config.WrongPassMsg || res == srv.Config.UsrNotFoundMsg {
-			srv.SetCookie(c, "LogInErr", 1, res)
-			return c.Redirect("/")
-		} else {
-			// token := new(model.AuthData)
-			json.Unmarshal([]byte(res), tempSession)
-
-			// Registring new session
-			tempSession.UserLogin = signInData.Email
-			srv.RegisterSession(tempSession, c)
-			c.ClearCookie("LogInErr")
-			return c.Redirect("/panel")
-		}
-
+		return ctx.Status(apiResp.StatusCode).JSON(apiResp.Body)
 	}
 }
 
-// ClosureSignUp() returns a webapp route closure function that proceeds user authorization data and starts login session
-func (ServerHandler) ClosureSignUp(server *Server) fiber.Handler {
-	srv := server
-	return func(c *fiber.Ctx) error {
-		// Redirecting to panel page if user is already logged in. If not - redirecting to login form
-		if srv.CheckAuth(c) {
-			return c.Redirect("/panel")
-		} else {
-			signUpErr := c.Cookies("SignUpErr")
-			c.ClearCookie("SignUpErr")
-			return c.Render("sign-up", fiber.Map{
-				"Title": srv.Config.MainPageTitle,
-				"Error": signUpErr,
-			})
+func (h *Handler) ClosureSignUp(server *Server) fiber.Handler {
+	//srv := server
+	return func(ctx *fiber.Ctx) error {
+		input := model.SignUpInput{}
+
+		if err := ctx.BodyParser(&input); err != nil {
+			return ctx.Status(http.StatusBadRequest).JSON(err.Error())
 		}
+
+		apiResp, err := h.client.Users.SignUp(input)
+		if err != nil {
+			return ctx.SendString(err.Error())
+		}
+
+		h.setCookie(ctx, apiResp.Cookies)
+
+		return ctx.Status(apiResp.StatusCode).JSON(apiResp.Body)
+	}
+}
+
+func (h *Handler) ClosureSignOut(server *Server) fiber.Handler {
+	srv := server
+	return func(ctx *fiber.Ctx) error {
+		cookieName := srv.Config.CookieName
+
+		apiResp, err := h.client.Users.SignOut(&http.Cookie{
+			Name:  cookieName,
+			Value: ctx.Cookies(cookieName),
+		})
+		if err != nil {
+			return ctx.SendString(err.Error())
+		}
+
+		ctx.ClearCookie(cookieName)
+
+		return ctx.Status(apiResp.StatusCode).JSON(apiResp.Body)
+	}
+}
+
+func (h *Handler) ClosureRefreshTokens(server *Server) fiber.Handler {
+	srv := server
+	return func(ctx *fiber.Ctx) error {
+		cookieName := srv.Config.CookieName
+
+		ctx.Request().Header.Cookie("refreshToken")
+
+		apiRespWithCookies, err := h.client.Users.RefreshTokens(&http.Cookie{
+			Name:  cookieName,
+			Value: ctx.Cookies(cookieName),
+		})
+
+		if err != nil {
+			return ctx.SendString(err.Error())
+		}
+
+		h.setCookie(ctx, apiRespWithCookies.Cookies)
+
+		return ctx.Status(apiRespWithCookies.StatusCode).JSON(apiRespWithCookies.Body)
+	}
+}
+
+func (h *Handler) ClosureAddDriverLicense(server *Server) fiber.Handler {
+	//srv := server
+	return func(ctx *fiber.Ctx) error {
+
+		input := model.AddDriverLicenceInput{}
+
+		if err := ctx.BodyParser(&input); err != nil {
+			return ctx.Status(http.StatusBadRequest).JSON(err.Error())
+		}
+
+		jwtHeader := ctx.Get("Authorization", "Bearer ")
+
+		apiResp, err := h.client.Users.AddDriverLicense(input, jwtHeader)
+		if err != nil {
+			return ctx.SendString(err.Error())
+		}
+
+		return ctx.Status(apiResp.StatusCode).JSON(apiResp.Body)
+	}
+}
+
+func (h *Handler) ClosureGetFines(server *Server) fiber.Handler {
+	//srv := server
+	return func(ctx *fiber.Ctx) error {
+
+		jwtHeader := ctx.Get("Authorization", "Bearer ")
+
+		apiResp, err := h.client.Users.GetFines(jwtHeader)
+		if err != nil {
+			return ctx.SendString(err.Error())
+		}
+
+		return ctx.Status(apiResp.StatusCode).JSON(apiResp.Body)
 	}
 }
 
 // ClosureNewUser() returns a webapp route closure function that proceeds user authorization data and starts login session
-func (ServerHandler) ClosureNewUser(server *Server) fiber.Handler {
+func (h *Handler) ClosureNewUser(server *Server) fiber.Handler {
 	//srv := server
 	return func(c *fiber.Ctx) error {
-		signInData := new(model.SingInData)
+		signInData := new(model.SignInInput)
 
 		// Parsing login data from POST request (via html <form>) to a variable
 		err := c.BodyParser(signInData)
@@ -90,7 +163,7 @@ func (ServerHandler) ClosureNewUser(server *Server) fiber.Handler {
 }
 
 // ClosureExit() returns a webapp route closure function that handles exit from session proccess
-func (ServerHandler) ClosureExit(server *Server) fiber.Handler {
+func (h *Handler) ClosureExit(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		// Marking session as ended and clearing cookies
@@ -100,8 +173,8 @@ func (ServerHandler) ClosureExit(server *Server) fiber.Handler {
 	}
 }
 
-// ClosureMain() returns a webapp route closure function that handles requests to base URL
-func (ServerHandler) ClosureMain(server *Server) fiber.Handler {
+// ClosureMain returns a webapp route closure function that handles requests to base URL
+func (h *Handler) ClosureMain(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		// Redirecting to panel page if user is already logged in. If not - redirecting to login form
@@ -118,8 +191,8 @@ func (ServerHandler) ClosureMain(server *Server) fiber.Handler {
 	}
 }
 
-// ClosureMain() returns a webapp route closure function that handles requests to base URL
-func (ServerHandler) ClosurePanel(server *Server) fiber.Handler {
+// ClosurePanel returns a webapp route closure function that handles requests to base URL
+func (h *Handler) ClosurePanel(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		// Allowing access to panel page if user is logged in. If not - redirecting to login form
@@ -135,6 +208,7 @@ func (ServerHandler) ClosurePanel(server *Server) fiber.Handler {
 	}
 }
 
+
 func (ServerHandler) ClosureAddInfo(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -149,5 +223,18 @@ func (ServerHandler) ClosureAddInfo(server *Server) fiber.Handler {
 			return c.Redirect("/")
 
 		}
+
+func (h *Handler) setCookie(ctx *fiber.Ctx, cookies []*http.Cookie) {
+	for _, cookie := range cookies {
+		ctx.Cookie(&fiber.Cookie{
+			Name:     cookie.Name,
+			Value:    cookie.Value,
+			Path:     cookie.Path,
+			Domain:   cookie.Domain,
+			MaxAge:   cookie.MaxAge,
+			Expires:  cookie.Expires,
+			Secure:   cookie.Secure,
+			HTTPOnly: cookie.HttpOnly,
+		})
 	}
 }
