@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"time"
 
+	"net/http"
+
 	"github.com/ASeegull/edriver-space-webapp/config"
 	"github.com/ASeegull/edriver-space-webapp/model"
 	"github.com/ASeegull/edriver-space-webapp/pkg/api_client"
 	"github.com/gofiber/fiber/v2"
-	"net/http"
 )
 
 type Handler struct {
@@ -208,8 +209,7 @@ func (h *Handler) ClosurePanel(server *Server) fiber.Handler {
 	}
 }
 
-
-func (ServerHandler) ClosureAddInfo(server *Server) fiber.Handler {
+func (Handler) ClosureAddInfo(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		// Allowing access to panel page if user is logged in. If not - redirecting to login form
@@ -223,6 +223,8 @@ func (ServerHandler) ClosureAddInfo(server *Server) fiber.Handler {
 			return c.Redirect("/")
 
 		}
+	}
+}
 
 func (h *Handler) setCookie(ctx *fiber.Ctx, cookies []*http.Cookie) {
 	for _, cookie := range cookies {
@@ -239,7 +241,7 @@ func (h *Handler) setCookie(ctx *fiber.Ctx, cookies []*http.Cookie) {
 	}
 }
 
-func (ServerHandler) ClosureVehicles(server *Server) fiber.Handler {
+func (Handler) ClosureVehicles(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		// Allowing access to vehicles page if user is logged in. If not - redirecting to login form
@@ -275,7 +277,7 @@ func (ServerHandler) ClosureVehicles(server *Server) fiber.Handler {
 	}
 }
 
-func (ServerHandler) ClosureFineSingle(server *Server) fiber.Handler {
+func (Handler) ClosureFineSingle(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
@@ -296,7 +298,7 @@ func (ServerHandler) ClosureFineSingle(server *Server) fiber.Handler {
 	}
 }
 
-func (ServerHandler) ClosureVehicleFineList(server *Server) fiber.Handler {
+func (Handler) ClosureVehicleFineList(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
@@ -331,7 +333,7 @@ func (ServerHandler) ClosureVehicleFineList(server *Server) fiber.Handler {
 	}
 }
 
-func (ServerHandler) ClosureFineList(server *Server) fiber.Handler {
+func (Handler) ClosureFineList(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
