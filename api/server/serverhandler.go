@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"net/http"
@@ -50,7 +51,7 @@ func (h *Handler) ClosureSignIn(server *Server) fiber.Handler {
 }
 
 func (h *Handler) ClosureSignUp(server *Server) fiber.Handler {
-	//srv := server
+	srv := server
 	return func(ctx *fiber.Ctx) error {
 		input := model.SignUpInput{}
 
@@ -64,8 +65,21 @@ func (h *Handler) ClosureSignUp(server *Server) fiber.Handler {
 		}
 
 		h.setCookie(ctx, apiResp.Cookies)
+		session := model.Session{
+			UserLogin: input.Email,
+		}
 
-		return ctx.Status(apiResp.StatusCode).JSON(apiResp.Body)
+		tokens := strings.Split(fmt.Sprint(apiResp.Body), " ")
+		if len(tokens) != 2 {
+			srv.SetCookie(ctx, "SignUpErr", 2, apiResp.Body)
+			return ctx.Redirect("/register")
+		}
+		session.AccessToken = tokens[0]
+		session.RefreshToken = tokens[0]
+
+		srv.RegisterSession(&session, ctx)
+		return ctx.Redirect("/panel")
+
 	}
 }
 
@@ -74,7 +88,7 @@ func (h *Handler) ClosureSignOut(server *Server) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		cookieName := srv.Config.CookieName
 
-		apiResp, err := h.client.Users.SignOut(&http.Cookie{
+		_, err := h.client.Users.SignOut(&http.Cookie{
 			Name:  cookieName,
 			Value: ctx.Cookies(cookieName),
 		})
@@ -82,9 +96,9 @@ func (h *Handler) ClosureSignOut(server *Server) fiber.Handler {
 			return ctx.SendString(err.Error())
 		}
 
-		ctx.ClearCookie(cookieName)
-
-		return ctx.Status(apiResp.StatusCode).JSON(apiResp.Body)
+		srv.EndSession(ctx.Cookies("sesid"))
+		ctx.ClearCookie()
+		return ctx.Redirect("/")
 	}
 }
 
@@ -171,6 +185,24 @@ func (h *Handler) ClosureExit(server *Server) fiber.Handler {
 		srv.EndSession(c.Cookies("sesid"))
 		c.ClearCookie()
 		return c.Redirect("/")
+	}
+}
+
+// ClosureSignUp() returns a webapp route closure function that proceeds user authorization data and starts login session
+func (Handler) ClosureRegisterPage(server *Server) fiber.Handler {
+	srv := server
+	return func(c *fiber.Ctx) error {
+		// Redirecting to panel page if user is already logged in. If not - redirecting to login form
+		if srv.CheckAuth(c) {
+			return c.Redirect("/panel")
+		} else {
+			signUpErr := c.Cookies("SignUpErr")
+			c.ClearCookie("SignUpErr")
+			return c.Render("sign-up", fiber.Map{
+				"Title": srv.Config.MainPageTitle,
+				"Error": signUpErr,
+			})
+		}
 	}
 }
 

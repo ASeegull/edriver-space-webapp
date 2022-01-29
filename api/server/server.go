@@ -42,21 +42,19 @@ func (server *Server) BuildRoutes() {
 
 	server.App.Post("/sign-in", server.Handler.ClosureSignIn(server))
 	server.App.Post("/sign-up", server.Handler.ClosureSignUp(server))
-	server.App.Post("/sign-out", server.Handler.ClosureSignOut(server))
+	server.App.Get("/sign-out", server.Handler.ClosureSignOut(server))
 	server.App.Get("/refresh-tokens", server.Handler.ClosureRefreshTokens(server))
 	server.App.Post("/add-driver-licence", server.Handler.ClosureAddDriverLicense(server))
 	server.App.Get("/fines", server.Handler.ClosureGetFines(server))
 
-	server.App.Post("/newuser", server.Handler.ClosureNewUser(server))
-
 	server.App.Get("/panel", server.Handler.ClosurePanel(server))
 
 	server.App.Get("/add-info", server.Handler.ClosureAddInfo(server))
+	server.App.Get("/register", server.Handler.ClosureRegisterPage(server))
 	server.App.Get("/vehicles", server.Handler.ClosureVehicles(server))
 	server.App.Get("/vehiclefines", server.Handler.ClosureVehicleFineList(server))
 	server.App.Get("/fines", server.Handler.ClosureFineList(server))
 	server.App.Get("/fine", server.Handler.ClosureFineSingle(server))
-	server.App.Get("/exit", server.Handler.ClosureExit(server))
 
 	server.App.Get("/getses", server.Handler.ClosureGetSessions(server))
 }

@@ -2,12 +2,13 @@ package api_client
 
 import (
 	"encoding/json"
-	"github.com/ASeegull/edriver-space-webapp/config"
-	"github.com/ASeegull/edriver-space-webapp/model"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/ASeegull/edriver-space-webapp/config"
+	"github.com/ASeegull/edriver-space-webapp/model"
 )
 
 type UsersRequests struct {
