@@ -9,11 +9,13 @@ import (
 
 	"github.com/ASeegull/edriver-space-webapp/config"
 	"github.com/ASeegull/edriver-space-webapp/model"
+	log "github.com/sirupsen/logrus"
 )
 
 type UsersRequests struct {
 	HttpClient *http.Client
 	cfg        *config.Config
+	logger     *log.Logger
 }
 
 func NewUsersRequests(cfg *config.Config) *UsersRequests {
@@ -21,7 +23,8 @@ func NewUsersRequests(cfg *config.Config) *UsersRequests {
 		HttpClient: &http.Client{
 			Timeout: time.Second * 10,
 		},
-		cfg: cfg,
+		cfg:    cfg,
+		logger: log.New(),
 	}
 }
 
@@ -75,7 +78,7 @@ func (u *UsersRequests) getTokensAndCookiesFromResponse(req *http.Request) (mode
 		return model.ApiResponseWithCookies{}, err
 	}
 
-	defer resp.Body.Close()
+	defer closeWithLogOnErr(u.logger, resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		byteResponseBody, _ := io.ReadAll(resp.Body)
@@ -118,7 +121,7 @@ func (u *UsersRequests) SignOut(cookie *http.Cookie) (model.ApiResponse, error) 
 		return model.ApiResponse{}, err
 	}
 
-	defer resp.Body.Close()
+	defer closeWithLogOnErr(u.logger, resp.Body)
 
 	byteRespBody, _ := io.ReadAll(resp.Body)
 
@@ -145,7 +148,7 @@ func (u *UsersRequests) GetFines(jwtHeader string) (model.ApiResponse, error) {
 		return model.ApiResponse{StatusCode: resp.StatusCode, Body: string(byteRespBody)}, nil
 	}
 
-	defer resp.Body.Close()
+	defer closeWithLogOnErr(u.logger, resp.Body)
 
 	var fines model.Fines
 
@@ -170,6 +173,7 @@ func (u *UsersRequests) AddDriverLicense(input model.AddDriverLicenceInput, jwtH
 	if err != nil {
 		return model.ApiResponse{}, err
 	}
+	req.Header.Set("Authorization", jwtHeader)
 
 	resp, err := u.HttpClient.Do(req)
 	if err != nil {
@@ -205,4 +209,14 @@ func (u *UsersRequests) unmarshalJson(r io.Reader, i interface{}) error {
 		return err
 	}
 	return nil
+}
+
+// closeWithLogOnErr is making sure we log every error, even those from the best effort tiny closers.
+func closeWithLogOnErr(log *log.Logger, closer io.Closer) {
+	err := closer.Close()
+	if err == nil {
+		return
+	}
+
+	log.Warn(err)
 }
