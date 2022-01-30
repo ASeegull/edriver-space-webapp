@@ -9,6 +9,7 @@ import (
 	"github.com/ASeegull/edriver-space-webapp/config"
 	"github.com/ASeegull/edriver-space-webapp/model"
 	"github.com/ASeegull/edriver-space-webapp/pkg/api_client"
+	"github.com/ASeegull/edriver-space-webapp/pkg/sorts"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -140,8 +141,7 @@ func (h *Handler) ClosureAddDriverLicense(server *Server) fiber.Handler {
 				}
 
 				id := c.Cookies("sesid")
-				jwtHeader := srv.Sessions[id].AccessToken
-				fmt.Println(jwtHeader)
+				jwtHeader := "Bearer " + srv.Sessions[id].AccessToken
 
 				apiResp, err := h.client.Users.AddDriverLicense(input, jwtHeader)
 				if err != nil {
@@ -171,7 +171,19 @@ func (h *Handler) ClosureGetFines(server *Server) fiber.Handler {
 					return c.SendString(err.Error())
 				}
 
-				return c.Status(apiResp.StatusCode).JSON(apiResp.Body)
+				fines, ok := apiResp.Body.(model.Fines)
+
+				if !ok {
+					return c.Status(apiResp.StatusCode).JSON(apiResp.Body)
+				}
+
+				return c.Render("fine-list", fiber.Map{
+					"Title":       srv.Config.PanelPageTitle,
+					"ListName":    server.Sessions[id].UserLogin,
+					"ReturnURL":   "/panel",
+					"CarFines":    fines.CarsFines,
+					"DriverFines": fines.DriversFines,
+				})
 
 			}
 		} else {
@@ -265,7 +277,7 @@ func (Handler) ClosureAddInfo(server *Server) fiber.Handler {
 	}
 }
 
-func (Handler) ClosureVehicles(server *Server) fiber.Handler {
+func (h *Handler) ClosureVehicles(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		// Allowing access to vehicles page if user is logged in. If not - redirecting to login form
@@ -273,26 +285,22 @@ func (Handler) ClosureVehicles(server *Server) fiber.Handler {
 			if srv.IsRefreshTime(c) {
 				return c.Redirect("/refresh-tokens")
 			} else {
-				cars := []*model.Car{
-					{
-						VIN:              "VF3HURHCHFUUDJK206785",
-						RegistrationNum:  "AA6666AA",
-						VehicleCategory:  "",
-						Make:             "Mazda",
-						Type:             "2",
-						Year:             "2013",
-						RegistrationDate: "20/01/2022",
-					},
-					{
-						VIN:              "IHFHIHOIDHOIFIOD456454",
-						RegistrationNum:  "",
-						VehicleCategory:  "",
-						Make:             "Mazda",
-						Type:             "CX-5",
-						Year:             "2019",
-						RegistrationDate: "21/02/2022",
-					},
+				id := c.Cookies("sesid")
+				jwtHeader := "Bearer " + srv.Sessions[id].AccessToken
+
+				apiResp, err := h.client.Users.GetFines(jwtHeader)
+				if err != nil {
+					return c.SendString(err.Error())
 				}
+
+				fines, ok := apiResp.Body.(model.Fines)
+
+				if !ok {
+					return c.Status(apiResp.StatusCode).JSON(apiResp.Body)
+				}
+
+				cars := sorts.GetCarListFromFines(fines)
+
 				return c.Render("vehicles", fiber.Map{
 					"Title": srv.Config.PanelPageTitle,
 					"Cars":  cars,
@@ -314,13 +322,11 @@ func (Handler) ClosureFineSingle(server *Server) fiber.Handler {
 				return c.Redirect("/refresh-tokens")
 			} else {
 				return c.Render("single-fine", fiber.Map{
-					"Title":       srv.Config.PanelPageTitle,
-					"VIN":         c.Query("VIN"),
-					"NumberPlate": c.Query("NumberPlate"),
-					"IssueDate":   c.Query("IssueDate"),
-					"Place":       c.Query("Place"),
-					"Violation":   c.Query("Violation"),
-					"Ammount":     c.Query("Ammount"),
+					"Title":         srv.Config.PanelPageTitle,
+					"LicenceNumber": c.Query("LicenceNumber"),
+					"NumberPlate":   c.Query("NumberPlate"),
+					"IssueDate":     c.Query("IssueDate"),
+					"Amount":        c.Query("Amount"),
 				})
 			}
 		} else {
@@ -330,7 +336,7 @@ func (Handler) ClosureFineSingle(server *Server) fiber.Handler {
 	}
 }
 
-func (Handler) ClosureVehicleFineList(server *Server) fiber.Handler {
+func (h *Handler) ClosureVehicleFineList(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
 		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
@@ -338,68 +344,28 @@ func (Handler) ClosureVehicleFineList(server *Server) fiber.Handler {
 			if srv.IsRefreshTime(c) {
 				return c.Redirect("/refresh-tokens")
 			} else {
-				fines := []*model.Fine{
-					{
-						VIN:         "VF3HURHCHFUUDJK206785",
-						NumberPlate: "AA6666AA",
-						Date:        "20-01-2022",
-						Place:       "Uhorska 22, Lviv",
-						Violation:   "Speeding",
-						Ammount:     "250",
-					},
-					{
-						VIN:         "VF3HURHCHFUUDJK206785",
-						NumberPlate: "BC3066KP",
-						Date:        "22-01-2022",
-						Place:       "Lypnytska 2, Lviv",
-						Violation:   "Speeding",
-						Ammount:     "500",
-					},
-				}
-				return c.Render("fine-list", fiber.Map{
-					"Title":    srv.Config.PanelPageTitle,
-					"ListName": c.Query("VIN"),
-					"Fines":    fines,
-				})
-			}
-		} else {
-			return c.Redirect("/")
-
-		}
-	}
-}
-
-func (Handler) ClosureFineList(server *Server) fiber.Handler {
-	srv := server
-	return func(c *fiber.Ctx) error {
-		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
-		if srv.CheckAuth(c) {
-			if srv.IsRefreshTime(c) {
-				return c.Redirect("/refresh-tokens")
-			} else {
-				fines := []*model.Fine{
-					{
-						VIN:         "VF3HURHCHFUUDJK206785",
-						NumberPlate: "AA6666AA",
-						Date:        "20-01-2022",
-						Place:       "Uhorska 22, Lviv",
-						Violation:   "Speeding",
-						Ammount:     "250",
-					},
-					{
-						VIN:         "VF3HURHCHFUUDJK206785",
-						NumberPlate: "BC3066KP",
-						Date:        "22-01-2022",
-						Place:       "Lypnytska 2, Lviv",
-						Violation:   "Speeding",
-						Ammount:     "500",
-					},
-				}
 				id := c.Cookies("sesid")
+				jwtHeader := "Bearer " + srv.Sessions[id].AccessToken
+
+				apiResp, err := h.client.Users.GetFines(jwtHeader)
+				if err != nil {
+					return c.SendString(err.Error())
+				}
+
+				fines, ok := apiResp.Body.(model.Fines)
+
+				if !ok {
+					return c.Status(apiResp.StatusCode).JSON(apiResp.Body)
+				}
+
+				numberplate := c.Query("NumberPlate")
+				carfines := sorts.SearchFinesByNumberPlate(fines, numberplate)
+
 				return c.Render("fine-list", fiber.Map{
-					"Title":    srv.Config.PanelPageTitle,
-					"ListName": server.Sessions[id].UserLogin,
-					"Fines":    fines,
+					"Title":     srv.Config.PanelPageTitle,
+					"ListName":  numberplate,
+					"ReturnURL": "/vehicles",
+					"CarFines":  carfines,
 				})
 			}
 		} else {

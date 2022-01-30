@@ -53,7 +53,6 @@ func (server *Server) BuildRoutes() {
 	server.App.Get("/register", server.Handler.ClosureRegisterPage(server))
 	server.App.Get("/vehicles", server.Handler.ClosureVehicles(server))
 	server.App.Get("/vehiclefines", server.Handler.ClosureVehicleFineList(server))
-	server.App.Get("/fines", server.Handler.ClosureFineList(server))
 	server.App.Get("/fine", server.Handler.ClosureFineSingle(server))
 
 	server.App.Get("/getses", server.Handler.ClosureGetSessions(server))

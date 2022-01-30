@@ -25,4 +25,6 @@ type Car struct {
 	FullName  string `json:"full_name"`
 	Address   string `json:"address"`
 	Ownership string `json:"ownership"`
+
+	FinesNum int `json:"fines_number"`
 }
