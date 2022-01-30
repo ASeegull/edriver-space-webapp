@@ -31,150 +31,143 @@ func (h *Handler) ClosureGetSessions(server *Server) fiber.Handler {
 // ClosureSignIn returns a webapp route closure function that proceeds user authorization data and starts login session
 func (h *Handler) ClosureSignIn(server *Server) fiber.Handler {
 	srv := server
-	return func(ctx *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
 		input := model.SignInInput{}
 
-		if err := ctx.BodyParser(&input); err != nil {
-			return ctx.Status(http.StatusBadRequest).JSON(err.Error())
+		if err := c.BodyParser(&input); err != nil {
+			return c.Status(http.StatusBadRequest).JSON(err.Error())
 		}
 
 		apiResp, err := h.client.Users.SignIn(input)
 		if err != nil {
-			return ctx.SendString(err.Error())
+			return c.SendString(err.Error())
 		}
 
-		srv.SetCookie(ctx, apiResp.Cookies)
+		srv.SetCookie(c, apiResp.Cookies)
 
-		session, err := srv.CreateSessionFromApiResponse(ctx, input.Email, apiResp)
+		session, err := srv.CreateSessionFromApiResponse(c, input.Email, apiResp)
 		if err != nil {
-			srv.SetTimedCookie(ctx, "SignInErr", 2, err)
-			return ctx.Redirect("/")
+			srv.SetTimedCookie(c, "SignInErr", 2, err)
+			return c.Redirect("/")
 		}
 
-		srv.RegisterSession(session, ctx)
-		return ctx.Redirect("/panel")
+		srv.RegisterSession(session, c)
+		return c.Redirect("/panel")
 
 	}
 }
 
 func (h *Handler) ClosureSignUp(server *Server) fiber.Handler {
 	srv := server
-	return func(ctx *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
 		input := model.SignUpInput{}
 
-		if err := ctx.BodyParser(&input); err != nil {
-			return ctx.Status(http.StatusBadRequest).JSON(err.Error())
+		if err := c.BodyParser(&input); err != nil {
+			return c.Status(http.StatusBadRequest).JSON(err.Error())
 		}
 
 		apiResp, err := h.client.Users.SignUp(input)
 		if err != nil {
-			return ctx.SendString(err.Error())
+			return c.SendString(err.Error())
 		}
-		srv.SetCookie(ctx, apiResp.Cookies)
+		srv.SetCookie(c, apiResp.Cookies)
 
-		session, err := srv.CreateSessionFromApiResponse(ctx, input.Email, apiResp)
+		session, err := srv.CreateSessionFromApiResponse(c, input.Email, apiResp)
 		if err != nil {
-			srv.SetTimedCookie(ctx, "SignUpErr", 2, err)
-			return ctx.Redirect("/register")
+			srv.SetTimedCookie(c, "SignUpErr", 2, err)
+			return c.Redirect("/register")
 		}
 
-		srv.RegisterSession(session, ctx)
-		return ctx.Redirect("/panel")
+		srv.RegisterSession(session, c)
+		return c.Redirect("/panel")
 
 	}
 }
 
 func (h *Handler) ClosureSignOut(server *Server) fiber.Handler {
 	srv := server
-	return func(ctx *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
 		cookieName := srv.Config.CookieName
 
 		_, err := h.client.Users.SignOut(&http.Cookie{
 			Name:  cookieName,
-			Value: ctx.Cookies(cookieName),
+			Value: c.Cookies(cookieName),
 		})
 		if err != nil {
-			return ctx.SendString(err.Error())
+			return c.SendString(err.Error())
 		}
 
-		srv.EndSession(ctx.Cookies("sesid"))
-		ctx.ClearCookie()
-		return ctx.Redirect("/")
+		srv.EndSession(c.Cookies("sesid"))
+		c.ClearCookie()
+		return c.Redirect("/")
 	}
 }
 
 func (h *Handler) ClosureRefreshTokens(server *Server) fiber.Handler {
 	srv := server
-	return func(ctx *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
 		cookieName := srv.Config.CookieName
 
-		ctx.Request().Header.Cookie("refreshToken")
+		c.Request().Header.Cookie("refreshToken")
 
 		apiRespWithCookies, err := h.client.Users.RefreshTokens(&http.Cookie{
 			Name:  cookieName,
-			Value: ctx.Cookies(cookieName),
+			Value: c.Cookies(cookieName),
 		})
 
 		if err != nil {
-			return ctx.SendString(err.Error())
+			return c.SendString(err.Error())
 		}
 
-		srv.SetCookie(ctx, apiRespWithCookies.Cookies)
+		srv.SetCookie(c, apiRespWithCookies.Cookies)
+		srv.SetTimedCookie(c, "refreshTime", 8, "no")
 
-		return ctx.Redirect("/panel")
+		return c.Redirect("/panel")
 	}
 }
 
 func (h *Handler) ClosureAddDriverLicense(server *Server) fiber.Handler {
 	//srv := server
-	return func(ctx *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
 
 		input := model.AddDriverLicenceInput{}
 
-		if err := ctx.BodyParser(&input); err != nil {
-			return ctx.Status(http.StatusBadRequest).JSON(err.Error())
+		if err := c.BodyParser(&input); err != nil {
+			return c.Status(http.StatusBadRequest).JSON(err.Error())
 		}
 
-		jwtHeader := ctx.Get("Authorization", "Bearer ")
+		jwtHeader := c.Get("Authorization", "Bearer ")
 
 		apiResp, err := h.client.Users.AddDriverLicense(input, jwtHeader)
 		if err != nil {
-			return ctx.SendString(err.Error())
+			return c.SendString(err.Error())
 		}
 
-		return ctx.Status(apiResp.StatusCode).JSON(apiResp.Body)
+		return c.Status(apiResp.StatusCode).JSON(apiResp.Body)
 	}
 }
 
 func (h *Handler) ClosureGetFines(server *Server) fiber.Handler {
-	//srv := server
-	return func(ctx *fiber.Ctx) error {
-
-		jwtHeader := ctx.Get("Authorization", "Bearer ")
-
-		apiResp, err := h.client.Users.GetFines(jwtHeader)
-		if err != nil {
-			return ctx.SendString(err.Error())
-		}
-
-		return ctx.Status(apiResp.StatusCode).JSON(apiResp.Body)
-	}
-}
-
-// ClosureNewUser() returns a webapp route closure function that proceeds user authorization data and starts login session
-func (h *Handler) ClosureNewUser(server *Server) fiber.Handler {
-	//srv := server
+	srv := server
 	return func(c *fiber.Ctx) error {
-		signInData := new(model.SignInInput)
+		if srv.CheckAuth(c) {
+			if srv.IsRefreshTime(c) {
+				return c.Redirect("/refresh-tokens")
+			} else {
+				id := c.Cookies("sesid")
+				jwtHeader := "Bearer " + srv.Sessions[id].AccessToken
 
-		// Parsing login data from POST request (via html <form>) to a variable
-		err := c.BodyParser(signInData)
-		if err != nil {
-			return c.Status(500).SendString(err.Error())
+				apiResp, err := h.client.Users.GetFines(jwtHeader)
+				if err != nil {
+					return c.SendString(err.Error())
+				}
+
+				return c.Status(apiResp.StatusCode).JSON(apiResp.Body)
+
+			}
+		} else {
+			return c.Redirect("/")
 		}
-		fmt.Printf("New User: %s, Pass: %s", signInData.Email, signInData.Password)
-		return c.Redirect("/")
-
 	}
 }
 
@@ -184,7 +177,7 @@ func (Handler) ClosureRegisterPage(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Redirecting to panel page if user is already logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
-			if srv.CheckRefreshTime(c) {
+			if srv.IsRefreshTime(c) {
 				return c.Redirect("/refresh-tokens")
 			} else {
 				return c.Redirect("/panel")
@@ -206,7 +199,7 @@ func (h *Handler) ClosureMain(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Redirecting to panel page if user is already logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
-			if srv.CheckRefreshTime(c) {
+			if srv.IsRefreshTime(c) {
 				return c.Redirect("/refresh-tokens")
 			} else {
 				return c.Redirect("/panel")
@@ -228,7 +221,7 @@ func (h *Handler) ClosurePanel(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Allowing access to panel page if user is logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
-			if srv.CheckRefreshTime(c) {
+			if srv.IsRefreshTime(c) {
 				return c.Redirect("/refresh-tokens")
 			} else {
 				return c.Render("panel", fiber.Map{
@@ -247,7 +240,7 @@ func (Handler) ClosureAddInfo(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Allowing access to panel page if user is logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
-			if srv.CheckRefreshTime(c) {
+			if srv.IsRefreshTime(c) {
 				return c.Redirect("/refresh-tokens")
 			} else {
 				currentTime := time.Now()
@@ -268,7 +261,7 @@ func (Handler) ClosureVehicles(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Allowing access to vehicles page if user is logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
-			if srv.CheckRefreshTime(c) {
+			if srv.IsRefreshTime(c) {
 				return c.Redirect("/refresh-tokens")
 			} else {
 				cars := []*model.Car{
@@ -308,7 +301,7 @@ func (Handler) ClosureFineSingle(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
-			if srv.CheckRefreshTime(c) {
+			if srv.IsRefreshTime(c) {
 				return c.Redirect("/refresh-tokens")
 			} else {
 				return c.Render("single-fine", fiber.Map{
@@ -333,7 +326,7 @@ func (Handler) ClosureVehicleFineList(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
-			if srv.CheckRefreshTime(c) {
+			if srv.IsRefreshTime(c) {
 				return c.Redirect("/refresh-tokens")
 			} else {
 				fines := []*model.Fine{
@@ -372,7 +365,7 @@ func (Handler) ClosureFineList(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Allowing access to fine list page if user is logged in. If not - redirecting to login form
 		if srv.CheckAuth(c) {
-			if srv.CheckRefreshTime(c) {
+			if srv.IsRefreshTime(c) {
 				return c.Redirect("/refresh-tokens")
 			} else {
 				fines := []*model.Fine{
