@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"net/http"
@@ -31,7 +30,7 @@ func (h *Handler) ClosureGetSessions(server *Server) fiber.Handler {
 
 // ClosureSignIn returns a webapp route closure function that proceeds user authorization data and starts login session
 func (h *Handler) ClosureSignIn(server *Server) fiber.Handler {
-	//srv := server
+	srv := server
 	return func(ctx *fiber.Ctx) error {
 		input := model.SignInInput{}
 
@@ -44,9 +43,17 @@ func (h *Handler) ClosureSignIn(server *Server) fiber.Handler {
 			return ctx.SendString(err.Error())
 		}
 
-		h.setCookie(ctx, apiResp.Cookies)
+		srv.SetCookie(ctx, apiResp.Cookies)
 
-		return ctx.Status(apiResp.StatusCode).JSON(apiResp.Body)
+		session, err := srv.CreateSessionFromApiResponse(ctx, input.Email, apiResp)
+		if err != nil {
+			srv.SetTimedCookie(ctx, "SignInErr", 2, err)
+			return ctx.Redirect("/")
+		}
+
+		srv.RegisterSession(session, ctx)
+		return ctx.Redirect("/panel")
+
 	}
 }
 
@@ -63,21 +70,15 @@ func (h *Handler) ClosureSignUp(server *Server) fiber.Handler {
 		if err != nil {
 			return ctx.SendString(err.Error())
 		}
+		srv.SetCookie(ctx, apiResp.Cookies)
 
-		h.setCookie(ctx, apiResp.Cookies)
-		session := model.Session{
-			UserLogin: input.Email,
-		}
-
-		tokens := strings.Split(fmt.Sprint(apiResp.Body), " ")
-		if len(tokens) != 2 {
-			srv.SetCookie(ctx, "SignUpErr", 2, apiResp.Body)
+		session, err := srv.CreateSessionFromApiResponse(ctx, input.Email, apiResp)
+		if err != nil {
+			srv.SetTimedCookie(ctx, "SignUpErr", 2, err)
 			return ctx.Redirect("/register")
 		}
-		session.AccessToken = tokens[0]
-		session.RefreshToken = tokens[0]
 
-		srv.RegisterSession(&session, ctx)
+		srv.RegisterSession(session, ctx)
 		return ctx.Redirect("/panel")
 
 	}
@@ -118,7 +119,7 @@ func (h *Handler) ClosureRefreshTokens(server *Server) fiber.Handler {
 			return ctx.SendString(err.Error())
 		}
 
-		h.setCookie(ctx, apiRespWithCookies.Cookies)
+		srv.SetCookie(ctx, apiRespWithCookies.Cookies)
 
 		return ctx.Status(apiRespWithCookies.StatusCode).JSON(apiRespWithCookies.Body)
 	}
@@ -177,17 +178,6 @@ func (h *Handler) ClosureNewUser(server *Server) fiber.Handler {
 	}
 }
 
-// ClosureExit() returns a webapp route closure function that handles exit from session proccess
-func (h *Handler) ClosureExit(server *Server) fiber.Handler {
-	srv := server
-	return func(c *fiber.Ctx) error {
-		// Marking session as ended and clearing cookies
-		srv.EndSession(c.Cookies("sesid"))
-		c.ClearCookie()
-		return c.Redirect("/")
-	}
-}
-
 // ClosureSignUp() returns a webapp route closure function that proceeds user authorization data and starts login session
 func (Handler) ClosureRegisterPage(server *Server) fiber.Handler {
 	srv := server
@@ -214,8 +204,8 @@ func (h *Handler) ClosureMain(server *Server) fiber.Handler {
 		if srv.CheckAuth(c) {
 			return c.Redirect("/panel")
 		} else {
-			logErr := c.Cookies("LogInErr")
-			c.ClearCookie("LogInErr")
+			logErr := c.Cookies("SignInErr")
+			c.ClearCookie("SignInErr")
 			return c.Render("index", fiber.Map{
 				"Title": srv.Config.MainPageTitle,
 				"Error": logErr,
@@ -255,21 +245,6 @@ func (Handler) ClosureAddInfo(server *Server) fiber.Handler {
 			return c.Redirect("/")
 
 		}
-	}
-}
-
-func (h *Handler) setCookie(ctx *fiber.Ctx, cookies []*http.Cookie) {
-	for _, cookie := range cookies {
-		ctx.Cookie(&fiber.Cookie{
-			Name:     cookie.Name,
-			Value:    cookie.Value,
-			Path:     cookie.Path,
-			Domain:   cookie.Domain,
-			MaxAge:   cookie.MaxAge,
-			Expires:  cookie.Expires,
-			Secure:   cookie.Secure,
-			HTTPOnly: cookie.HttpOnly,
-		})
 	}
 }
 

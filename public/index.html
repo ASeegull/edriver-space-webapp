@@ -12,12 +12,21 @@
 </head>
 
 <body>
+  <style>
+    .e-drive_error{
+      text-align: center;
+      font-size: 21px;
+        font-weight: 300;
+        color: red;
+      display: block;	
+    }
+  </style>
 <div style="min-height: calc(100vh - 80px); background-color:#f5f5f5">
-<div class="edrive_error">{{.Error}}</div>
 <form style= "padding-top: 1%;
     text-align: center; " method="POST" action="./sign-in">
 	<img style="width: 60%;" src="/public/2.png"> <br>
 <input style="display: inline;" name="email" type="text" placeholder="Login"> <br>
+<div class="e-drive_error">{{.Error}}</div>
 <br>
 <input style="display: inline;" name="password" type="password" placeholder="Password"> <br>
 <br>
