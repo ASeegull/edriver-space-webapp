@@ -313,6 +313,7 @@ func (h *Handler) ClosureVehicles(server *Server) fiber.Handler {
 	}
 }
 
+//ClosureFineSingle()
 func (Handler) ClosureFineSingle(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
