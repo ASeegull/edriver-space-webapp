@@ -127,23 +127,32 @@ func (h *Handler) ClosureRefreshTokens(server *Server) fiber.Handler {
 }
 
 func (h *Handler) ClosureAddDriverLicense(server *Server) fiber.Handler {
-	//srv := server
+	srv := server
 	return func(c *fiber.Ctx) error {
+		if srv.CheckAuth(c) {
+			if srv.IsRefreshTime(c) {
+				return c.Redirect("/refresh-tokens")
+			} else {
+				input := model.AddDriverLicenceInput{}
 
-		input := model.AddDriverLicenceInput{}
+				if err := c.BodyParser(&input); err != nil {
+					return c.Status(http.StatusBadRequest).JSON(err.Error())
+				}
 
-		if err := c.BodyParser(&input); err != nil {
-			return c.Status(http.StatusBadRequest).JSON(err.Error())
+				id := c.Cookies("sesid")
+				jwtHeader := srv.Sessions[id].AccessToken
+				fmt.Println(jwtHeader)
+
+				apiResp, err := h.client.Users.AddDriverLicense(input, jwtHeader)
+				if err != nil {
+					return c.SendString(err.Error())
+				}
+
+				return c.Status(apiResp.StatusCode).JSON(apiResp.Body)
+			}
+		} else {
+			return c.Redirect("/")
 		}
-
-		jwtHeader := c.Get("Authorization", "Bearer ")
-
-		apiResp, err := h.client.Users.AddDriverLicense(input, jwtHeader)
-		if err != nil {
-			return c.SendString(err.Error())
-		}
-
-		return c.Status(apiResp.StatusCode).JSON(apiResp.Body)
 	}
 }
 
