@@ -15,6 +15,7 @@ func (server *Server) RegisterSession(session *model.Session, c *fiber.Ctx) {
 	session.UserIP = c.IP()
 	server.Sessions[id] = *session
 	server.SetTimedCookie(c, "sesid", 60, id)
+	server.SetTimedCookie(c, "refreshtime", 8, "no")
 }
 
 // EndSession(id int) handles process of deleting a session with given id from Server.Sessions slice.
@@ -45,5 +46,14 @@ func (server *Server) CheckAuth(c *fiber.Ctx) bool {
 		res = true
 	}
 
+	return res
+}
+
+// CheckRefreshTime() checks if access token needs to be refreshed.
+func (server *Server) CheckRefreshTime(c *fiber.Ctx) bool {
+	res := false
+	if c.Cookies("refreshtime") != "no" {
+		res = true
+	}
 	return res
 }
