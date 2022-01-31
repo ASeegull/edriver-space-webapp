@@ -50,13 +50,6 @@ func LoadConfig(path string) (config *Config, err error) {
 	//Parsing config vals from file (second step)
 	err = viper.Unmarshal(config)
 
-	viper.AutomaticEnv()
-	viper.BindEnv("MainAppAdr")
-
-	// Temporary setting MAINAPPADR manually for correct work with Login plug
-	os.Setenv("MAINAPPADR", "http://localhost:5050")
-
-	config.MainAppAdr = viper.GetString("MainAppAdr")
 	return
 
 }
