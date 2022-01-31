@@ -8,6 +8,7 @@ const (
 	CarYear    = "2015"
 )
 
+//SearchFinesByNumberPlate() func finds fines that issued for given numberplate from all fines struct and returns them
 func SearchFinesByNumberPlate(fines model.Fines, numberplate string) []model.CarsFine {
 	var tempFines []model.CarsFine
 
@@ -19,6 +20,7 @@ func SearchFinesByNumberPlate(fines model.Fines, numberplate string) []model.Car
 	return tempFines
 }
 
+//GetCarListFromFines() forms car list from given fines struct and returns it
 func GetCarListFromFines(fines model.Fines) []model.Car {
 	var cars []model.Car
 	carsmap := make(map[string]model.Car)

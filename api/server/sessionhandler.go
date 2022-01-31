@@ -15,7 +15,7 @@ func (server *Server) RegisterSession(session *model.Session, c *fiber.Ctx) {
 	session.UserIP = c.IP()
 	server.Sessions[id] = *session
 	server.SetTimedCookie(c, "sesid", 60, id)
-	server.SetTimedCookie(c, "refreshTime", 8, "no")
+	server.SetTimedCookie(c, "refreshTime", 15, "no")
 }
 
 // EndSession(id int) handles process of deleting a session with given id from Server.Sessions slice.

@@ -17,11 +17,12 @@ type Handler struct {
 	client *api_client.ApiClient
 }
 
+// NewHandler() func initializes handler for created server
 func NewHandler(cfg *config.Config) *Handler {
 	return &Handler{client: api_client.NewApiClient(cfg)}
 }
 
-// ClosureGetSessions returns a webapp route closure function that proceeds technical requests for seeing all sessions
+// ClosureGetSessions returns a webapp route closure function that proceeds administrational requests for seeing all sessions
 func (h *Handler) ClosureGetSessions(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -58,6 +59,7 @@ func (h *Handler) ClosureSignIn(server *Server) fiber.Handler {
 	}
 }
 
+// ClosureSignIn returns a webapp route closure function that proceeds user sing up data and creates new user
 func (h *Handler) ClosureSignUp(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -85,6 +87,7 @@ func (h *Handler) ClosureSignUp(server *Server) fiber.Handler {
 	}
 }
 
+// ClosureSignOut returns a webapp route closure function that proceeds signout process
 func (h *Handler) ClosureSignOut(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -104,29 +107,35 @@ func (h *Handler) ClosureSignOut(server *Server) fiber.Handler {
 	}
 }
 
+// ClosureRefreshTokens returns a webapp route closure function that proceeds process of refreshing Tokens
 func (h *Handler) ClosureRefreshTokens(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
-		cookieName := srv.Config.CookieName
+		if srv.CheckAuth(c) {
+			cookieName := srv.Config.CookieName
 
-		c.Request().Header.Cookie("refreshToken")
+			c.Request().Header.Cookie("refreshToken")
 
-		apiRespWithCookies, err := h.client.Users.RefreshTokens(&http.Cookie{
-			Name:  cookieName,
-			Value: c.Cookies(cookieName),
-		})
+			apiRespWithCookies, err := h.client.Users.RefreshTokens(&http.Cookie{
+				Name:  cookieName,
+				Value: c.Cookies(cookieName),
+			})
 
-		if err != nil {
-			return c.SendString(err.Error())
+			if err != nil {
+				return c.SendString(err.Error())
+			}
+
+			srv.SetCookie(c, apiRespWithCookies.Cookies)
+			srv.SetTimedCookie(c, "refreshTime", 15, "no")
+
+			return c.Redirect("/panel")
+		} else {
+			return c.Redirect("/")
 		}
-
-		srv.SetCookie(c, apiRespWithCookies.Cookies)
-		srv.SetTimedCookie(c, "refreshTime", 8, "no")
-
-		return c.Redirect("/panel")
 	}
 }
 
+// ClosureAddDriverLicense returns a webapp route closure function that proceeds process of connecting user profile with drivers data
 func (h *Handler) ClosureAddDriverLicense(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -156,6 +165,7 @@ func (h *Handler) ClosureAddDriverLicense(server *Server) fiber.Handler {
 	}
 }
 
+// ClosureGetFines returns a webapp route closure function that proceeds process of loading fines for given user
 func (h *Handler) ClosureGetFines(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -192,7 +202,7 @@ func (h *Handler) ClosureGetFines(server *Server) fiber.Handler {
 	}
 }
 
-// ClosureSignUp() returns a webapp route closure function that proceeds user authorization data and starts login session
+// ClosureRegisterPage() returns a webapp route closure function that delivers registration page to user
 func (Handler) ClosureRegisterPage(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -214,7 +224,7 @@ func (Handler) ClosureRegisterPage(server *Server) fiber.Handler {
 	}
 }
 
-// ClosureMain returns a webapp route closure function that handles requests to base URL
+// ClosureMain() returns a webapp route closure function that handles requests to base URL
 func (h *Handler) ClosureMain(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -236,7 +246,7 @@ func (h *Handler) ClosureMain(server *Server) fiber.Handler {
 	}
 }
 
-// ClosurePanel returns a webapp route closure function that handles requests to base URL
+// ClosurePanel() returns a webapp route closure function that delivers panel page to users
 func (h *Handler) ClosurePanel(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -256,6 +266,7 @@ func (h *Handler) ClosurePanel(server *Server) fiber.Handler {
 	}
 }
 
+// ClosureAddInfo() returns a webapp route closure function that delivers Adding Driver Info page to users
 func (Handler) ClosureAddInfo(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -277,6 +288,7 @@ func (Handler) ClosureAddInfo(server *Server) fiber.Handler {
 	}
 }
 
+// ClosureVehicles() returns a webapp route closure function that delivers Vehicles page to users
 func (h *Handler) ClosureVehicles(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -313,7 +325,7 @@ func (h *Handler) ClosureVehicles(server *Server) fiber.Handler {
 	}
 }
 
-//ClosureFineSingle()
+// ClosureFineSingle() returns a webapp route closure function that delivers single fine page to users
 func (Handler) ClosureFineSingle(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
@@ -337,6 +349,7 @@ func (Handler) ClosureFineSingle(server *Server) fiber.Handler {
 	}
 }
 
+// ClosureVehicleFineList() returns a webapp route closure function that delivers Vehicles Fines page to users
 func (h *Handler) ClosureVehicleFineList(server *Server) fiber.Handler {
 	srv := server
 	return func(c *fiber.Ctx) error {
