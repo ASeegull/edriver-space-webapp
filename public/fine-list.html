@@ -29,31 +29,52 @@
     font-family: 'Trebuchet MS', sans-serif;">Fines for - {{.ListName}}</h1>
 
 
-	<a href="/vehicles"><button style ="border: none;
+	<a href="{{.ReturnURL}}"><button style ="border: none;
     color: white;
     padding: 0.5em 1em;
     display: inline-block;
-    background: #33414e;">Back to list</button></a> 
+    background: #33414e;">Back</button></a> 
 	</div>
 <br> <br>
 <div style="padding-left:15px; padding-right:15px;width: 50%;">
-    {{range .Fines}}
-    <div style="border:2px solid red" class="e-drive_menu_div">
+    {{range .CarFines}}
+    <div style="border:2px solid green" class="e-drive_menu_div">
         <h3 style="
         display: contents;
-        color: red;
-    "><a href="/fine?NumberPlate={{.NumberPlate}}&VIN={{.VIN}}&IssueDate={{.Date}}&Violation={{.Violation}}&Ammount={{.Ammount}}">
-        {{.VIN}}
+        color: green;
+    "><a href="/fine?&NumberPlate={{.VehicleRegistrationNumber}}&IssueDate={{.DataAndTime}}&Violation={{.Info}}&Amount={{.Price}}">
+        {{.VehicleRegistrationNumber}}
     </a></h3> <br>
         <p style="
         padding-left: 4%;
-        color: red;
+        color: green;
     ">
-    NumberPlate: {{.NumberPlate}} <br>
+    Fine Number: {{.FineNum}} <br>
     Place: {{.Place}} <br>
-    Date: {{.Date}} <br>
-    Violation: {{.Violation}}<br>
-    Ammount: <b>{{.Ammount}} UAH</b><br>
+    Date and Time: {{.DataAndTime}} <br>
+    Violation: {{.Info}}<br>
+    Amount: <b>{{.Price}} UAH</b><br>
+        </p>
+    </div>
+    {{end}}
+
+    {{range .DriverFines}}
+    <div style="border:2px solid rgb(67, 67, 240)" class="e-drive_menu_div">
+        <h3 style="
+        display: contents;
+        color: rgb(67, 67, 240);
+    "><a href="/fine?&LicenceNumber={{.LicenceNumber}}&IssueDate={{.DataAndTime}}&NumberPlate={{.VehicleRegistrationNumber}}&Amount={{.Price}}">
+        {{.LicenceNumber}}
+    </a></h3> <br>
+        <p style="
+        padding-left: 4%;
+        color: rgb(67, 67, 240);
+    ">
+    Fine Number: {{.FineNum}} <br>
+    Place: {{.Place}} <br>
+    Date and Time: {{.DataAndTime}} <br>
+    Car Number Plate: {{.VehicleRegistrationNumber}}<br>
+    Amount: <b>{{.Price}} UAH</b><br>
         </p>
     </div>
     {{end}}

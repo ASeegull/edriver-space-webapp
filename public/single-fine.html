@@ -8,20 +8,20 @@
 </head>
 <body style="background-color:#f7f7f7;"> 
 <div style="padding-left:15px; padding-top:7px; min-height: calc(100vh - 80px); background-color:#f5f5f5">
-<a href="/vehiclefines?VIN={{.VIN}}"><h4>Back to fine list</h4></a>
+<a href="/fines"><h4>Back to all fines list</h4></a>
 
 <table>
 <form enctype="multipart/form-data" action="" method="post">
 	<h1 style=" display: block;
-    font-family: 'Trebuchet MS', sans-serif;">Fine info for "{{.FineDate}} - {{.VIN}}":</h1>
+    font-family: 'Trebuchet MS', sans-serif;">Fine info for "{{.FineDate}} - {{.NumberPlate}}":</h1>
     <tr>
         <td>Ticketed car:</td>
         <td><b>{{.NumberPlate}}</b></td>
 		
     </tr>
     <tr>
-        <td>VIN:</td>
-        <td><b>{{.VIN}}</b></td>
+        <td>LicenceNumber:</td>
+        <td><b>{{.LicenceNumber}}</b></td>
 		
     </tr>
     <tr>
@@ -30,13 +30,8 @@
 		
     </tr>
     <tr>
-        <td>Violation:</td>
-        <td><b>{{.Violation}}</b></td>
-		
-    </tr>
-    <tr>
         <td>Fine Size:</td>
-        <td><b>{{.Ammount}} UAH</b></td>
+        <td><b>{{.Amount}} UAH</b></td>
 		
     </tr>
     <tr>

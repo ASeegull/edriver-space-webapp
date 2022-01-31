@@ -21,19 +21,28 @@
       display: block;
       padding: 20px;		
     }
+    .e-drive_error{
+      text-align: center;
+      font-size: 21px;
+        font-weight: 300;
+        color: red;
+      display: block;	
+    }
       </style>
 <div style="min-height: calc(100vh - 80px); background-color:#f5f5f5">
-<div class="edrive_error">{{.Error}}</div>
 <form style= "padding-top: 1%;
-    text-align: center; padding-bottom: 10%;" method="POST" action="./newuser">
+    text-align: center; padding-bottom: 10%;" method="POST" action="/sign-up">
 	<img style="width: 60%;" src="/public/2.png"> <br>
   <a class="e-drive_menu_a" style="align-self: center;"> Register new profile: </a>
 <input style="display: inline;" name="email" type="text" placeholder="Type your email..."> <br>
 <br>
-<input style="display: inline;" name="name" type="text" placeholder="Type your name..."> <br>
+<input style="display: inline;" name="firstname" type="text" placeholder="Type your first name..."> <br>
+<br>
+<input style="display: inline;" name="lastname" type="text" placeholder="Type your last name..."> <br>
 <br>
 <input style="display: inline;" name="password" type="password" placeholder="Create your password"> <br>
 <br>
+<div class="e-drive_error">{{.Error}}</div> <br>
 <input style="background: #33414e;" type="submit" value="Sign Up" >
 </form>
 </div>

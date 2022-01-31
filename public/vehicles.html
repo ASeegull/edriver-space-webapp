@@ -38,7 +38,6 @@
     
 	
 	<td><b>Check fines</b></td>
-    <td><b>Delete</b></td>
     
 </tr>
 
@@ -51,8 +50,8 @@
 <td>{{.Make}} {{.Type}}</td>
 <td>{{.Year}}</td>
 <td>{{.RegistrationDate}}</td>
-<td>3</td>
-<td><a href="./vehiclefines?VIN={{.VIN}}">Check fines</a></td><td><a href="./">Delete</a></td>
+<td>{{.FinesNum}}</td>
+<td><a href="./vehiclefines?NumberPlate={{.RegistrationNum}}">Check fines</a></td>
 </tr>
 {{end}}
 

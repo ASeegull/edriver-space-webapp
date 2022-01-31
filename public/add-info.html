@@ -11,58 +11,25 @@
 <a href="/panel"><h4>Back to main panel</h4></a>
 
 <table>
-<form enctype="multipart/form-data" action="" method="post">
+<form enctype="multipart/form-data" action="/add-driver-licence" method="post">
 	<h1 style=" display: block;
     font-family: 'Trebuchet MS', sans-serif;">Complete the registration with adding more info:</h1>
-    <tr>
-        <td>Your name:</td>
-        <td><input type="text" name="full_name" value="" required ></td>
-		
-    </tr>
 	<tr>
         <td>Date of birth:</td>
-        <td><input type="date" name="date_of_birth"  value="{{.Date}}"
+        <td><input type="date"  value="{{.Date}}"
 			min="1925-01-01" max="2022-12-31" required ></td>
     </tr>	
-    <tr>
-        <td>Place of birth</td>
-        <td><input type="text" name="place_of_birth" value="" required ></td>
-    </tr>
-	 <br>
-	 <tr>
-        <td>Your driver license number:</td>
-        <td><input type="text" name="place_of_birth" value="" required ></td>
-    </tr>
-	<tr>
-        <td>Your driver license date of isuue:</td>
-        <td><input type="date" name="place_of_birth" value="{{.Date}}"
-			min="1925-01-01" max="2022-12-31" required ></td>
-    </tr>
-	<tr>
-        <td>Your driver license expire date:</td>
-        <td><input type="date" name="place_of_birth" value="{{.Date}}"
-			min="1925-01-01" max="2022-12-31" required ></td>
-    </tr>
-	<br>
 	<tr>
         <td>Your individual tax number:</td>
-        <td><input type="text" name="place_of_birth" value="" required ></td>
+        <td><input type="text" name="individual_tax_number" placeholder="1000003" value="" required ></td>
     </tr>
 	<br>
-	<tr>
-	   <td>Your driver category number:</td>
-	   <td><input type="text" name="place_of_birth" value="" required ></td>
-   </tr>
    <tr>
 	   <td>Your driver category date of isuue:</td>
-	   <td><input type="date" name="place_of_birth" value="{{.Date}}"
+	   <td><input type="date" value="{{.Date}}"
 		min="1925-01-01" max="2022-12-31" required ></td>
    </tr>
-   <tr>
-	   <td>Your driver category expire date:</td>
-	   <td><input type="date" name="place_of_birth" value="{{.Date}}"
-		min="1925-01-01" max="2022-12-31" required></td>
-   </tr>
+   
     <tr>
         <td colspan="2"><input style ="border: none;
     color: white;
